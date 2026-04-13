@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>トレカボックス買取ランキング</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#08090d;--surface:#0f1118;--card:#13161f;--card2:#191c27;--card3:#1e2230;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --accent:#ffcb05;--teal:#3dd9c4;--orange:#f97316;--purple:#b47dff;
+  --blue:#6c8fff;--green:#3ddc84;--red:#ff6b6b;
+  --text:#f0f2fa;--text2:rgba(240,242,250,0.6);--text3:rgba(240,242,250,0.32);
+  --shrink:#3dd9c4;--noshrink:#f97316;
+}
+html,body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;}
+.page{display:none;}.page.active{display:block;}
+
+/* ── Header ── */
+header{background:rgba(8,9,13,0.94);border-bottom:1px solid var(--border);padding:0 16px;position:sticky;top:0;z-index:200;backdrop-filter:blur(20px);}
+.header-inner{max-width:980px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:52px;gap:8px;}
+.logo{display:flex;align-items:center;gap:9px;flex-shrink:0;}
+.logo-icon{width:28px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.logo-text{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.08em;color:var(--text);line-height:1;}
+.logo-text em{color:var(--accent);font-style:normal;}
+.logo-badge{font-size:9px;font-weight:700;background:var(--accent);color:#000;padding:2px 6px;border-radius:4px;letter-spacing:0.06em;}
+.header-nav{display:flex;gap:5px;align-items:center;}
+.nav-btn{padding:5px 11px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.16s;white-space:nowrap;}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+.nav-btn.active-nav{background:var(--accent);border-color:var(--accent);color:#000;}
+.ai-status{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text3);}
+.ai-dot{width:5px;height:5px;border-radius:50%;background:var(--text3);}
+.ai-dot.on{background:var(--teal);animation:pulse 1.5s infinite;}
+.ai-dot.busy{background:var(--purple);animation:pulse 0.6s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* ── Buttons ── */
+.btn{padding:7px 14px;border-radius:8px;border:none;font-family:'Noto Sans JP',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.16s;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#ffd633;transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-danger{background:rgba(255,107,107,0.1);color:var(--red);border:1px solid rgba(255,107,107,0.2);}
+.btn-danger:hover{background:rgba(255,107,107,0.18);}
+.btn-teal{background:rgba(61,217,196,0.1);color:var(--teal);border:1px solid rgba(61,217,196,0.22);}
+.btn-teal:hover{background:rgba(61,217,196,0.18);}
+
+/* ══ RANKING PAGE ══ */
+.rank-wrap{max-width:980px;margin:0 auto;padding:18px 16px 60px;}
+
+.rank-hero{margin-bottom:18px;}
+.rank-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(26px,5vw,40px);letter-spacing:0.06em;line-height:1.05;}
+.rank-hero h1 em{color:var(--accent);font-style:normal;}
+.rank-hero p{font-size:11px;color:var(--text2);margin-top:4px;line-height:1.7;}
+.updated-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--teal);background:rgba(61,217,196,0.08);border:1px solid rgba(61,217,196,0.18);padding:3px 9px;border-radius:20px;margin-top:6px;}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--teal);animation:pulse 1.8s infinite;}
+
+/* 免責バナー */
+.disclaimer{background:rgba(255,107,107,0.07);border:1px solid rgba(255,107,107,0.2);border-radius:9px;padding:8px 14px;font-size:11px;color:rgba(255,107,107,0.85);margin-bottom:14px;line-height:1.6;}
+
+/* Stats - BOX選択後のみ表示 */
+.stats-bar{display:none;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:16px;}
+.stats-bar.show{display:grid;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:9px 11px;}
+.stat-label{font-size:10px;color:var(--text3);margin-bottom:2px;}
+.stat-value{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--accent);line-height:1;}
+.stat-sub{font-size:10px;color:var(--text3);margin-top:1px;}
+
+/* BOX検索エリア */
+.box-search-area{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:14px 16px;margin-bottom:14px;}
+.box-search-label{font-size:11px;color:var(--text2);font-weight:700;letter-spacing:0.06em;margin-bottom:8px;}
+.box-search-row{display:flex;gap:8px;align-items:center;}
+.box-search-input-wrap{position:relative;flex:1;}
+.box-search-input-wrap input{
+  width:100%;padding:10px 36px 10px 14px;
+  background:var(--card2);border:1.5px solid var(--border2);
+  border-radius:9px;color:var(--text);
+  font-family:'Noto Sans JP',sans-serif;font-size:13px;outline:none;
+  transition:border-color 0.2s;
+}
+.box-search-input-wrap input:focus{border-color:rgba(255,203,5,0.5);}
+.box-search-input-wrap input::placeholder{color:var(--text3);}
+.bsi-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);font-size:15px;cursor:pointer;}
+.box-list-btn{
+  flex-shrink:0;padding:10px 14px;border-radius:9px;
+  background:var(--card2);border:1.5px solid var(--border2);
+  color:var(--text2);font-family:'Noto Sans JP',sans-serif;
+  font-size:11px;font-weight:700;cursor:pointer;transition:all 0.16s;
+  white-space:nowrap;display:flex;align-items:center;gap:5px;
+}
+.box-list-btn:hover{border-color:rgba(255,203,5,0.4);color:var(--accent);}
+.box-list-btn.open{background:rgba(255,203,5,0.1);border-color:rgba(255,203,5,0.4);color:var(--accent);}
+
+/* BOX一覧ドロップダウン */
+.box-dropdown{
+  margin-top:10px;background:var(--card2);border:1px solid var(--border2);
+  border-radius:10px;overflow:hidden;display:none;max-height:260px;overflow-y:auto;
+}
+.box-dropdown.open{display:block;}
+.box-dropdown::-webkit-scrollbar{width:4px;}
+.box-dropdown::-webkit-scrollbar-track{background:transparent;}
+.box-dropdown::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.bdd-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 13px;cursor:pointer;transition:background 0.14s;
+  border-bottom:1px solid var(--border);
+}
+.bdd-item:last-child{border-bottom:none;}
+.bdd-item:hover{background:rgba(255,203,5,0.06);}
+.bdd-item.selected{background:rgba(255,203,5,0.09);}
+.bdd-img{width:38px;height:38px;border-radius:7px;background:var(--card3);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden;}
+.bdd-img img{width:100%;height:100%;object-fit:cover;display:block;}
+.bdd-info{flex:1;min-width:0;}
+.bdd-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bdd-meta{font-size:10px;color:var(--text3);margin-top:1px;}
+.bdd-cnt{font-size:10px;font-weight:700;color:var(--teal);flex-shrink:0;}
+
+/* 選択中BOXバナー */
+.selected-box-banner{
+  background:var(--card);border:1.5px solid var(--border2);
+  border-radius:13px;padding:13px 16px;margin-bottom:14px;
+  display:none;align-items:center;gap:14px;
+  position:relative;overflow:hidden;
+}
+.selected-box-banner.show{display:flex;}
+.sbb-accent-line{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent 55%);}
+.sbb-img{width:54px;height:54px;border-radius:9px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;overflow:hidden;}
+.sbb-img img{width:100%;height:100%;object-fit:cover;display:block;}
+.sbb-info{flex:1;min-width:0;}
+.sbb-label{font-size:10px;color:var(--text3);letter-spacing:0.1em;margin-bottom:3px;}
+.sbb-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.05em;line-height:1;}
+.sbb-sub{font-size:11px;color:var(--text2);margin-top:3px;}
+.sbb-change{cursor:pointer;font-size:11px;color:var(--text3);padding:5px 10px;border:1px solid var(--border);border-radius:7px;background:transparent;transition:all 0.16s;white-space:nowrap;}
+.sbb-change:hover{border-color:var(--accent);color:var(--accent);}
+
+/* フィルター */
+.filter-bar{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:11px 13px;margin-bottom:12px;display:flex;flex-direction:column;gap:9px;}
+.filter-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.filter-title{font-size:10px;color:var(--text2);min-width:52px;flex-shrink:0;font-weight:700;letter-spacing:0.06em;}
+.chip{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--border);background:var(--card2);color:var(--text2);cursor:pointer;transition:all 0.16s;white-space:nowrap;}
+.chip:hover{border-color:rgba(255,203,5,0.3);color:var(--text);}
+.chip.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+.filter-divider{border:none;border-top:1px solid var(--border);}
+.sort-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.sort-label{font-size:11px;color:var(--text2);}
+.sort-select{padding:4px 11px;border-radius:20px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:11px;cursor:pointer;outline:none;font-family:'Noto Sans JP',sans-serif;}
+.sort-select option{background:var(--card2);color:var(--text);}
+
+/* 地域複数選択 */
+.pref-multi-wrap{display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex:1;}
+.pref-chip{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--border);background:var(--card2);color:var(--text2);cursor:pointer;transition:all 0.16s;white-space:nowrap;}
+.pref-chip.active{background:rgba(108,143,255,0.2);border-color:rgba(108,143,255,0.4);color:var(--blue);}
+.pref-more-btn{font-size:11px;color:var(--text3);cursor:pointer;padding:4px 8px;border:1px solid var(--border);border-radius:20px;background:var(--card2);white-space:nowrap;}
+.pref-more-btn:hover{color:var(--text);border-color:var(--border2);}
+/* 地域ドロップダウン */
+.pref-dropdown{position:relative;}
+.pref-dropdown-panel{
+  position:absolute;top:calc(100% + 6px);left:0;z-index:150;
+  background:var(--card2);border:1px solid var(--border2);border-radius:11px;
+  padding:12px;display:none;width:320px;max-height:320px;overflow-y:auto;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+}
+.pref-dropdown-panel.open{display:block;}
+.pref-dropdown-panel::-webkit-scrollbar{width:4px;}
+.pref-dropdown-panel::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.pref-dp-title{font-size:10px;color:var(--text3);font-weight:700;letter-spacing:0.1em;margin-bottom:8px;}
+.pref-dp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
+.pref-dp-chip{padding:4px 6px;border-radius:7px;font-size:10px;font-weight:500;border:1px solid var(--border);background:var(--card3);color:var(--text2);cursor:pointer;transition:all 0.14s;text-align:center;}
+.pref-dp-chip:hover{border-color:rgba(108,143,255,0.3);color:var(--text);}
+.pref-dp-chip.active{background:rgba(108,143,255,0.18);border-color:rgba(108,143,255,0.4);color:var(--blue);}
+.pref-dp-actions{display:flex;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid var(--border);}
+.pref-dp-actions button{flex:1;padding:6px;font-size:11px;border-radius:7px;cursor:pointer;border:1px solid var(--border);font-family:'Noto Sans JP',sans-serif;font-weight:600;}
+.pref-dp-clear{background:var(--card3);color:var(--text2);}
+.pref-dp-close{background:var(--accent);color:#000;border-color:var(--accent);}
+
+/* 未選択メッセージ */
+.no-box-msg{text-align:center;padding:50px 20px;background:var(--card);border:1px dashed rgba(255,203,5,0.2);border-radius:14px;margin-bottom:16px;}
+/* ピカチュウSVG */
+.pikachu-svg{margin:0 auto 14px;display:block;}
+.no-box-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.1em;color:var(--accent);margin-bottom:6px;}
+.no-box-sub{font-size:12px;color:var(--text2);line-height:1.7;}
+
+/* ランキングエリア */
+.rank-area{display:none;}
+.rank-area.show{display:block;}
+.result-count-bar{font-size:11px;color:var(--text2);margin-bottom:12px;}
+.result-count-bar strong{color:var(--accent);}
+
+/* ランキングセクション枠 */
+.section-block{margin-bottom:16px;background:var(--surface);border-radius:16px;overflow:hidden;}
+.shrink-section{border:1.5px solid rgba(61,217,196,0.3);box-shadow:0 0 0 1px rgba(61,217,196,0.06),0 4px 20px rgba(0,0,0,0.3);}
+.noshrink-section{border:1.5px solid rgba(249,115,22,0.3);box-shadow:0 0 0 1px rgba(249,115,22,0.06),0 4px 20px rgba(0,0,0,0.3);}
+.section-header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);}
+.shrink-hdr{background:linear-gradient(135deg,rgba(61,217,196,0.12),rgba(61,217,196,0.04));}
+.noshrink-hdr{background:linear-gradient(135deg,rgba(249,115,22,0.12),rgba(249,115,22,0.04));}
+.section-icon{font-size:18px;flex-shrink:0;}
+.section-title-wrap{flex:1;}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:0.08em;line-height:1;}
+.shrink-hdr .section-title{color:var(--shrink);}
+.noshrink-hdr .section-title{color:var(--noshrink);}
+.section-desc{font-size:10px;color:var(--text2);margin-top:2px;}
+.section-count{font-family:'Bebas Neue',sans-serif;font-size:22px;}
+.shrink-hdr .section-count{color:var(--shrink);}
+.noshrink-hdr .section-count{color:var(--noshrink);}
+.section-body{padding:12px 12px 14px;}
+
+.rank-list{display:flex;flex-direction:column;gap:7px;}
+.rank-item{
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:12px;display:grid;grid-template-columns:48px 1fr auto;
+  cursor:pointer;transition:all 0.16s;animation:fadeUp 0.24s ease both;
+  position:relative;overflow:hidden;min-height:74px;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.rank-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.shrink-section .rank-item::before{background:rgba(61,217,196,0.4);}
+.noshrink-section .rank-item::before{background:rgba(249,115,22,0.35);}
+.rank-item.rank-1{border-color:rgba(255,203,5,0.35);background:linear-gradient(135deg,var(--card),rgba(255,203,5,0.03));}
+.rank-item.rank-1::before{background:var(--accent);}
+.rank-item.rank-2{border-color:rgba(184,196,216,0.22);}
+.rank-item.rank-2::before{background:#b8c4d8;}
+.rank-item.rank-3{border-color:rgba(212,133,74,0.22);}
+.rank-item.rank-3::before{background:#d4854a;}
+.rank-item:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.4);}
+.ri-rank{display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid var(--border);background:rgba(255,255,255,0.01);}
+.ri-crown{font-size:10px;line-height:1;margin-bottom:2px;}
+.ri-num{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1;}
+.rank-1 .ri-num{color:var(--accent);text-shadow:0 0 10px rgba(255,203,5,0.4);}
+.rank-2 .ri-num{color:#b8c4d8;}
+.rank-3 .ri-num{color:#d4854a;}
+.ri-num.other{color:var(--text3);font-size:17px;}
+.ri-info{padding:11px 12px;display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0;}
+.ri-store{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ri-tags{display:flex;gap:4px;flex-wrap:wrap;}
+.tag{font-size:10px;padding:2px 6px;border-radius:6px;font-weight:700;white-space:nowrap;}
+.tag-ship{background:rgba(108,143,255,0.15);color:var(--blue);border:1px solid rgba(108,143,255,0.25);}
+.tag-walk{background:rgba(61,220,132,0.1);color:var(--green);border:1px solid rgba(61,220,132,0.2);}
+.tag-pref{background:rgba(255,255,255,0.04);color:var(--text3);border:1px solid var(--border);}
+.tag-today{background:rgba(61,220,132,0.1);color:var(--green);border:1px solid rgba(61,220,132,0.2);}
+.tag-yest{background:rgba(255,203,5,0.08);color:var(--accent);border:1px solid rgba(255,203,5,0.16);}
+.tag-ai{background:rgba(180,125,255,0.12);color:var(--purple);border:1px solid rgba(180,125,255,0.22);}
+.tag-exp{background:rgba(255,107,107,0.12);color:var(--red);border:1px solid rgba(255,107,107,0.22);}
+.ri-handle{font-size:10px;color:rgba(108,143,255,0.6);margin-top:1px;}
+.ri-price{padding:11px 14px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:1px;flex-shrink:0;}
+.ri-price-label{font-size:9px;color:var(--text3);}
+.ri-amount{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--accent);line-height:1;}
+.ri-unit{font-size:10px;color:var(--text3);}
+.rank-1 .ri-amount{color:var(--accent);text-shadow:0 0 8px rgba(255,203,5,0.2);}
+.rank-empty{text-align:center;padding:24px;background:var(--card);border-radius:11px;border:1px dashed var(--border2);color:var(--text2);font-size:12px;line-height:1.8;}
+
+/* 価格詳細エリア */
+.ri-price-block{padding:10px 12px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:2px;flex-shrink:0;min-width:110px;}
+.ri-buy-price{display:flex;align-items:baseline;gap:3px;}
+.ri-buy-label{font-size:9px;color:var(--text3);}
+.ri-buy-amount{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--accent);line-height:1;}
+.ri-buy-unit{font-size:10px;color:var(--text3);}
+.rank-1 .ri-buy-amount{text-shadow:0 0 8px rgba(255,203,5,0.2);}
+.ri-msrp{font-size:10px;color:var(--text3);text-align:right;}
+.ri-diff{font-size:11px;font-weight:700;text-align:right;}
+.ri-diff.plus{color:#ff6b6b;} /* 定価より下 = 損 = 赤 */
+.ri-diff.minus{color:var(--green);} /* 定価より高い = 得 = 緑 */
+.ri-day-change{font-size:11px;font-weight:700;text-align:right;display:flex;align-items:center;gap:2px;justify-content:flex-end;}
+.ri-day-change.up{color:var(--green);}
+.ri-day-change.down{color:var(--red);}
+.ri-day-change.flat{color:var(--text3);}
+
+/* 上昇ランキング */
+.rise-section{margin-top:28px;}
+.rise-header{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:11px;margin-bottom:10px;background:linear-gradient(135deg,rgba(255,203,5,0.1),rgba(255,203,5,0.04));border:1px solid rgba(255,203,5,0.2);}
+.rise-header-icon{font-size:18px;}
+.rise-header-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.08em;color:var(--accent);flex:1;}
+.rise-header-sub{font-size:10px;color:var(--text2);}
+.rise-list{display:flex;flex-direction:column;gap:7px;}
+.rise-item{
+  background:var(--card);border:1.5px solid var(--border);border-radius:12px;
+  padding:12px 14px;display:flex;align-items:center;gap:12px;
+  cursor:default;transition:all 0.16s;animation:fadeUp 0.24s ease both;
+  position:relative;overflow:hidden;
+}
+.rise-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:rgba(255,203,5,0.3);}
+.rise-item.rise-1::before{background:var(--accent);}
+.rise-item:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.3);}
+.rise-rank{font-family:'Bebas Neue',sans-serif;font-size:20px;width:32px;text-align:center;flex-shrink:0;}
+.rise-1 .rise-rank{color:var(--accent);}
+.rise-2 .rise-rank{color:#b8c4d8;}
+.rise-3 .rise-rank{color:#d4854a;}
+.rise-rank.other{color:var(--text3);font-size:16px;}
+.rise-info{flex:1;min-width:0;}
+.rise-box-name{font-size:13px;font-weight:700;margin-bottom:3px;}
+.rise-meta{font-size:10px;color:var(--text2);}
+.rise-price-block{text-align:right;flex-shrink:0;}
+.rise-change{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--green);line-height:1;}
+.rise-change-label{font-size:10px;color:var(--text2);}
+.rise-prices{font-size:10px;color:var(--text3);margin-top:1px;}
+
+/* ══ MARKET PAGE ══ */
+.market-wrap{max-width:980px;margin:0 auto;padding:20px 16px 60px;}
+.market-hero{margin-bottom:16px;}
+.market-hero h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(24px,5vw,36px);letter-spacing:0.06em;line-height:1;}
+.market-hero h2 em{color:var(--accent);font-style:normal;}
+.market-hero p{font-size:11px;color:var(--text2);margin-top:4px;line-height:1.7;}
+.mkt-searchbar{position:relative;margin-bottom:12px;}
+.mkt-searchbar input{width:100%;padding:11px 40px 11px 14px;background:var(--card);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s;}
+.mkt-searchbar input:focus{border-color:rgba(255,203,5,0.4);}
+.mkt-searchbar input::placeholder{color:var(--text3);}
+.mkt-s-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;}
+.mkt-box-list{display:flex;flex-direction:column;gap:8px;}
+.mkt-box-row{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:13px 15px;display:flex;align-items:center;gap:13px;cursor:pointer;transition:all 0.16s;}
+.mkt-box-row:hover{border-color:rgba(255,203,5,0.24);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.28);}
+.mbr-img{width:50px;height:50px;border-radius:8px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden;}
+.mbr-img img{width:100%;height:100%;object-fit:cover;display:block;}
+.mbr-info{flex:1;min-width:0;}
+.mbr-name{font-size:13px;font-weight:700;margin-bottom:2px;}
+.mbr-meta{font-size:10px;color:var(--text3);margin-bottom:4px;}
+.mbr-avgs{display:flex;gap:10px;}
+.mbr-avg-item{display:flex;flex-direction:column;gap:1px;}
+.mbr-avg-lbl{font-size:9px;color:var(--text3);}
+.mbr-avg-val{font-family:'Bebas Neue',sans-serif;font-size:14px;line-height:1;}
+.mbr-avg-val.s{color:var(--shrink);}
+.mbr-avg-val.n{color:var(--noshrink);}
+.mbr-arrow{font-size:18px;color:var(--text3);}
+.mkt-detail{display:none;}
+.mkt-detail.show{display:block;}
+.mkt-back{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer;margin-bottom:12px;padding:4px 0;}
+.mkt-back:hover{color:var(--accent);}
+.mkt-top-card{background:var(--card);border:1.5px solid var(--border2);border-radius:14px;padding:16px;margin-bottom:11px;position:relative;overflow:hidden;}
+.mkt-top-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent 50%);}
+.mkt-top-hdr{display:flex;gap:13px;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;}
+.mkt-box-img{width:74px;height:74px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;overflow:hidden;}
+.mkt-box-img img{width:100%;height:100%;object-fit:cover;display:block;}
+.mkt-box-name{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:0.05em;line-height:1;margin-bottom:3px;}
+.mkt-box-rel{font-size:11px;color:var(--text2);}
+.mkt-box-aliases{font-size:10px;color:var(--text3);margin-top:2px;}
+.mkt-avg-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.mkt-avg-box{background:var(--card2);border-radius:10px;padding:12px 13px;}
+.mkt-avg-lbl{font-size:10px;color:var(--text2);margin-bottom:3px;}
+.mkt-avg-num{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1;}
+.mkt-avg-num.s{color:var(--shrink);}
+.mkt-avg-num.n{color:var(--noshrink);}
+.mkt-avg-sub{font-size:10px;color:var(--text3);margin-top:2px;}
+.mkt-avg-range{font-size:10px;color:var(--text3);margin-top:1px;}
+.mkt-chart-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:15px;margin-bottom:11px;}
+.mkt-chart-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:7px;}
+.mkt-chart-title{font-size:12px;font-weight:700;color:var(--text);}
+.mkt-chart-note{font-size:10px;color:var(--text3);}
+.period-row{display:flex;gap:4px;}
+.period-btn{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--card2);color:var(--text2);cursor:pointer;transition:all 0.14s;}
+.period-btn.active{background:var(--accent);border-color:var(--accent);color:#000;}
+.chart-wrap{position:relative;height:200px;}
+.mkt-recent-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:11px;}
+.mkt-recent-hdr{font-size:11px;font-weight:700;color:var(--text);margin-bottom:9px;}
+.recent-tabs{display:flex;gap:5px;margin-bottom:8px;}
+.recent-tab{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--card2);color:var(--text2);cursor:pointer;transition:all 0.14s;}
+.recent-tab.s.on{background:var(--shrink);border-color:var(--shrink);color:#000;}
+.recent-tab.n.on{background:var(--noshrink);border-color:var(--noshrink);color:#000;}
+.mkt-recent-rows{display:flex;flex-direction:column;gap:5px;}
+.mrr{display:flex;align-items:center;gap:7px;padding:7px 9px;background:var(--card2);border-radius:8px;font-size:12px;}
+.mrr-store{font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mrr-date{font-size:10px;color:var(--text3);flex-shrink:0;}
+.mrr-price{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--accent);flex-shrink:0;}
+.mrr-src{font-size:9px;color:var(--purple);flex-shrink:0;}
+
+/* ══ LOGIN ══ */
+.login-wrap{min-height:calc(100vh - 52px);display:flex;align-items:center;justify-content:center;padding:20px;}
+.login-box{background:var(--surface);border:1.5px solid var(--border2);border-radius:18px;padding:30px 26px;width:100%;max-width:340px;}
+.login-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.1em;color:var(--accent);text-align:center;margin-bottom:4px;}
+.login-sub{font-size:11px;color:var(--text2);text-align:center;margin-bottom:16px;}
+.login-err{font-size:11px;color:var(--red);background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.18);border-radius:7px;padding:7px 11px;margin-bottom:12px;display:none;}
+.login-err.show{display:block;}
+
+/* ══ ADMIN ══ */
+.admin-wrap{max-width:980px;margin:0 auto;padding:18px 16px 60px;}
+.admin-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.admin-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:0.08em;color:var(--accent);}
+.admin-title span{color:var(--text);}
+.admin-tab-bar{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap;}
+.atb{padding:8px 14px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.14s;margin-bottom:-1px;white-space:nowrap;}
+.atb.on{color:var(--accent);border-bottom-color:var(--accent);}
+.atb-content{display:none;}.atb-content.on{display:block;}
+.form-grp{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+.form-grp label{font-size:11px;color:var(--text2);letter-spacing:0.06em;}
+.form-grp input,.form-grp select,.form-grp textarea{padding:9px 11px;background:var(--card2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:12px;outline:none;transition:border-color 0.16s;}
+.form-grp input:focus,.form-grp select:focus,.form-grp textarea:focus{border-color:rgba(255,203,5,0.4);}
+.form-grp textarea{resize:vertical;min-height:55px;}
+.form-grp select option{background:var(--card2);color:var(--text);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.cb-row{display:flex;gap:13px;flex-wrap:wrap;}
+.cb-item{display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;}
+.cb-item input{accent-color:var(--accent);width:13px;height:13px;}
+.shrink-toggle{display:flex;border-radius:9px;overflow:hidden;border:1px solid var(--border);}
+.stog{flex:1;padding:8px;text-align:center;cursor:pointer;font-size:12px;font-weight:700;transition:all 0.14s;background:var(--card2);color:var(--text2);}
+.stog:first-child{border-right:1px solid var(--border);}
+.stog.on.is-s{background:rgba(61,217,196,0.16);color:var(--shrink);}
+.stog.on.is-n{background:rgba(249,115,22,0.16);color:var(--noshrink);}
+.form-section-title{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.06em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:14px;margin-bottom:12px;}
+.form-actions{display:flex;gap:6px;margin-top:4px;}
+.form-actions .btn{flex:1;padding:9px;font-size:12px;}
+.api-note{background:rgba(108,143,255,0.07);border:1px solid rgba(108,143,255,0.18);border-radius:9px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:rgba(108,143,255,0.85);line-height:1.7;}
+.bm-list{display:flex;flex-direction:column;gap:6px;}
+.bm-row{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:10px 12px;display:flex;align-items:center;gap:10px;}
+.bm-row-img{width:40px;height:40px;border-radius:7px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden;}
+.bm-row-img img{width:100%;height:100%;object-fit:cover;display:block;}
+.bm-row-info{flex:1;min-width:0;}
+.bm-row-name{font-size:12px;font-weight:700;margin-bottom:1px;}
+.bm-row-meta{font-size:10px;color:var(--text3);}
+.ph-tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.ph-tbl th{padding:6px 7px;text-align:left;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);font-weight:500;}
+.ph-tbl td{padding:6px 7px;border-bottom:1px solid rgba(255,255,255,0.03);}
+.ph-tbl tr:last-child td{border-bottom:none;}
+.ac-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:12px;display:grid;grid-template-columns:1fr auto;gap:9px;align-items:start;margin-bottom:7px;}
+.ac-name{font-size:12px;font-weight:700;margin-bottom:3px;}
+.ac-handle{color:rgba(108,143,255,0.7);font-size:11px;margin-bottom:4px;}
+.ac-tags{display:flex;gap:4px;flex-wrap:wrap;}
+.ac-actions{display:flex;flex-direction:column;gap:4px;}
+.ent-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:11px;display:grid;grid-template-columns:1fr auto;gap:9px;align-items:start;margin-bottom:7px;}
+.ai-log-card{background:var(--card);border:1px solid rgba(180,125,255,0.18);border-radius:11px;padding:12px;margin-bottom:12px;}
+.ai-log-title{font-size:11px;font-weight:700;color:var(--purple);margin-bottom:7px;}
+.ai-log-body{background:rgba(0,0,0,0.22);border-radius:7px;padding:8px 10px;max-height:180px;overflow-y:auto;font-size:11px;font-family:monospace;}
+.alr{padding:2px 0;display:flex;gap:6px;line-height:1.5;}
+.alt{color:var(--text3);flex-shrink:0;}
+.alm{color:var(--text);}
+.alm.ok{color:var(--green);}
+.alm.warn{color:var(--accent);}
+.alm.ai{color:var(--purple);}
+.shrink-yes{background:rgba(61,217,196,0.1);color:var(--shrink);border:1px solid rgba(61,217,196,0.22);}
+.shrink-no{background:rgba(249,115,22,0.1);color:var(--noshrink);border:1px solid rgba(249,115,22,0.22);}
+
+/* Detail panel */
+.detail-panel{position:fixed;right:0;top:0;bottom:0;width:min(380px,100vw);background:var(--surface);border-left:1.5px solid var(--border2);z-index:300;transform:translateX(100%);transition:transform 0.24s cubic-bezier(0.4,0,0.2,1);overflow-y:auto;}
+.detail-panel.open{transform:translateX(0);}
+.dp-inner{padding:20px 17px 50px;}
+.dp-close{position:sticky;top:0;float:right;margin-left:8px;background:var(--card2);border:1px solid var(--border);border-radius:50%;width:30px;height:30px;color:var(--text2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.dp-close:hover{color:var(--text);}
+.dp-shrink-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px;margin-bottom:7px;}
+.dp-store{font-family:'Bebas Neue',sans-serif;font-size:23px;line-height:1.1;margin-top:8px;}
+.dp-handle{color:var(--blue);font-size:11px;margin:3px 0 8px;}
+.dp-price{font-family:'Bebas Neue',sans-serif;font-size:46px;color:var(--accent);line-height:1;}
+.dp-section{margin-top:15px;}
+.dp-section h4{font-size:10px;color:var(--text3);letter-spacing:0.12em;border-bottom:1px solid var(--border);padding-bottom:5px;margin-bottom:8px;}
+.x-link{display:flex;align-items:center;justify-content:center;gap:7px;padding:9px 14px;border-radius:8px;margin-top:7px;background:#000;border:1px solid #222;color:#fff;font-size:12px;text-decoration:none;font-weight:500;}
+.x-link:hover{background:#111;}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--card2);border:1.5px solid var(--border2);border-radius:9px;padding:9px 18px;font-size:12px;font-weight:600;z-index:999;opacity:0;transition:all 0.24s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.ok{border-color:rgba(61,220,132,0.3);color:var(--green);}
+.toast.err{border-color:rgba(255,107,107,0.3);color:var(--red);}
+
+@media(max-width:520px){
+  .stats-bar{grid-template-columns:repeat(2,1fr);}
+  .rank-item{grid-template-columns:40px 1fr auto;}
+  .ri-amount{font-size:21px;}
+  .detail-panel{width:100vw;}
+  .form-row{grid-template-columns:1fr;}
+  .mkt-avg-grid{grid-template-columns:1fr;}
+  .ai-status span{display:none;}
+  .pref-dp-grid{grid-template-columns:repeat(3,1fr);}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <!-- トレカアイコン SVG -->
+      <div class="logo-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect x="3" y="2" width="16" height="22" rx="2.5" fill="#ffcb05" stroke="#e5a800" stroke-width="1.2"/>
+          <rect x="4.5" y="3.5" width="13" height="19" rx="1.8" fill="#fff9e0"/>
+          <rect x="6" y="5" width="10" height="7" rx="1.2" fill="#3dd9c4" opacity="0.85"/>
+          <rect x="6" y="13.5" width="6" height="1.2" rx="0.6" fill="#c0a800"/>
+          <rect x="6" y="16" width="9" height="1.2" rx="0.6" fill="#c0a800"/>
+          <rect x="6" y="18.5" width="7" height="1.2" rx="0.6" fill="#c0a800"/>
+          <!-- 重なる2枚目 -->
+          <rect x="9" y="5" width="16" height="22" rx="2.5" fill="#191c27" stroke="#3dd9c4" stroke-width="1.2" opacity="0.9"/>
+          <rect x="10.5" y="6.5" width="13" height="19" rx="1.8" fill="#13161f"/>
+          <rect x="12" y="8" width="10" height="7" rx="1.2" fill="#b47dff" opacity="0.7"/>
+          <rect x="12" y="17" width="6" height="1.1" rx="0.5" fill="#3dd9c4" opacity="0.6"/>
+          <rect x="12" y="19.2" width="8" height="1.1" rx="0.5" fill="#3dd9c4" opacity="0.6"/>
+        </svg>
+      </div>
+      <div class="logo-text">トレカBOX<em>買取</em></div>
+      <div class="logo-badge">RANKING</div>
+    </div>
+    <div class="header-nav">
+      <div class="ai-status">
+        <div class="ai-dot" id="ai-dot"></div>
+        <span id="ai-txt">AI待機中</span>
+      </div>
+      <button class="nav-btn active-nav" onclick="showPage('public')">ランキング</button>
+      <button class="nav-btn" onclick="showPage('market')">相場表</button>
+      <button class="nav-btn" onclick="goAdmin()">管理者</button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ RANKING ══ -->
+<div id="page-public" class="page active">
+  <div class="rank-wrap">
+    <div class="rank-hero">
+      <h1>トレカ<em>BOX</em><br>買取ランキング</h1>
+      <p>本日・前日のX買取ツイートから自動取得したリアルタイム相場</p>
+      <div class="updated-badge"><div class="dot"></div><span id="updated-time">更新中...</span></div>
+    </div>
+
+    <!-- 免責 -->
+    <div class="disclaimer">
+      ⚠️ 表示価格はX（旧Twitter）のツイートから自動取得したものです。<strong>買取期限切れ・価格変更の可能性があります。</strong>必ず各店舗の最新情報をご確認ください。
+    </div>
+
+    <!-- Stats：BOX選択後のみ表示 -->
+    <div class="stats-bar" id="stats-bar">
+      <div class="stat-card"><div class="stat-label">表示中店舗</div><div class="stat-value" id="stat-stores">0</div><div class="stat-sub">店舗</div></div>
+      <div class="stat-card"><div class="stat-label">📦 シュリンク有り最高</div><div class="stat-value" id="stat-s-max">—</div><div class="stat-sub">円</div></div>
+      <div class="stat-card"><div class="stat-label">🃏 シュリンク無し最高</div><div class="stat-value" id="stat-n-max">—</div><div class="stat-sub">円</div></div>
+    </div>
+
+    <!-- BOX検索 -->
+    <div class="box-search-area">
+      <div class="box-search-label">🃏 BOXを選択してランキングを表示</div>
+      <div class="box-search-row">
+        <div class="box-search-input-wrap">
+          <input type="text" id="box-search-q" placeholder="BOX名を入力して検索..." oninput="onBoxSearch()" autocomplete="off">
+          <button class="bsi-clear" onclick="clearBoxSearch()">✕</button>
+        </div>
+        <button class="box-list-btn" id="box-list-btn" onclick="toggleBoxDropdown()">
+          📋 一覧から選ぶ
+        </button>
+      </div>
+      <!-- 検索候補 / 一覧ドロップダウン -->
+      <div class="box-dropdown" id="box-dropdown"></div>
+    </div>
+
+    <!-- 選択中BOXバナー -->
+    <div class="selected-box-banner" id="sbb">
+      <div class="sbb-accent-line"></div>
+      <div class="sbb-img" id="sbb-img">📦</div>
+      <div class="sbb-info">
+        <div class="sbb-label">選択中のBOX</div>
+        <div class="sbb-name" id="sbb-name"></div>
+        <div class="sbb-sub" id="sbb-sub"></div>
+      </div>
+      <button class="sbb-change" onclick="clearSelectedBox()">変更</button>
+    </div>
+
+    <!-- フィルター（BOX選択後のみ表示） -->
+    <div class="filter-bar" id="filter-bar" style="display:none;">
+      <div class="filter-row">
+        <span class="filter-title">対応方法</span>
+        <div class="chip active" data-f="all" onclick="setF('all',this)">すべて</div>
+        <div class="chip" data-f="ship" onclick="setF('ship',this)">📦 発送対応</div>
+        <div class="chip" data-f="walk" onclick="setF('walk',this)">🚶 持込対応</div>
+      </div>
+      <hr class="filter-divider">
+      <div class="filter-row">
+        <span class="filter-title">地域</span>
+        <div class="pref-dropdown" id="pref-dropdown">
+          <button class="pref-more-btn" id="pref-summary-btn" onclick="togglePrefPanel()">📍 全国 ▾</button>
+          <div class="pref-dropdown-panel" id="pref-panel">
+            <div class="pref-dp-title">都道府県を選択（複数可）</div>
+            <div class="pref-dp-grid" id="pref-grid"></div>
+            <div class="pref-dp-actions">
+              <button class="pref-dp-clear" onclick="clearPrefs()">クリア</button>
+              <button class="pref-dp-close" onclick="closePrefPanel()">決定</button>
+            </div>
+          </div>
+        </div>
+        <div class="chip active" id="exp-chip" onclick="toggleExp(this)">⛔ 期限切れ除外</div>
+      </div>
+      <hr class="filter-divider">
+      <div class="sort-row">
+        <span class="sort-label">並び順:</span>
+        <select class="sort-select" id="sort-sel" onchange="renderRank()">
+          <option value="price">💰 買取価格が高い順</option>
+          <option value="name">🔤 店舗名順</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- BOX未選択メッセージ -->
+    <div class="no-box-msg" id="no-box-msg">
+      <!-- トレカBOXアイコン SVG -->
+      <svg class="pikachu-svg" width="90" height="90" viewBox="0 0 90 90" fill="none">
+        <!-- BOX本体 -->
+        <rect x="12" y="30" width="66" height="48" rx="5" fill="#1e2230" stroke="#3dd9c4" stroke-width="1.5"/>
+        <!-- BOX上面 -->
+        <path d="M12 34 L45 20 L78 34" stroke="#3dd9c4" stroke-width="1.5" fill="#13161f" stroke-linejoin="round"/>
+        <path d="M12 34 L45 20 L78 34 L78 38 L45 24 L12 38 Z" fill="#191c27" stroke="#3dd9c4" stroke-width="1"/>
+        <!-- 帯 -->
+        <rect x="12" y="50" width="66" height="10" fill="#ffcb05" opacity="0.15"/>
+        <rect x="12" y="50" width="66" height="10" fill="none" stroke="#ffcb05" stroke-width="0.8" opacity="0.4"/>
+        <!-- カードが飛び出す演出 -->
+        <rect x="30" y="14" width="20" height="28" rx="2.5" fill="#ffcb05" stroke="#e5a800" stroke-width="1" transform="rotate(-8 30 14)"/>
+        <rect x="31.5" y="15.5" width="17" height="25" rx="1.8" fill="#fff9e0" transform="rotate(-8 30 14)"/>
+        <rect x="33" y="17" width="13" height="9" rx="1.5" fill="#3dd9c4" opacity="0.8" transform="rotate(-8 30 14)"/>
+        <rect x="42" y="10" width="20" height="28" rx="2.5" fill="#191c27" stroke="#b47dff" stroke-width="1" transform="rotate(6 42 10)"/>
+        <rect x="43.5" y="11.5" width="17" height="25" rx="1.8" fill="#13161f" transform="rotate(6 42 10)"/>
+        <rect x="45" y="13" width="13" height="9" rx="1.5" fill="#b47dff" opacity="0.7" transform="rotate(6 42 10)"/>
+        <!-- ラベルテキスト -->
+        <rect x="22" y="55" width="46" height="14" rx="3" fill="#ffcb05" opacity="0.12"/>
+        <rect x="22" y="55" width="46" height="14" rx="3" fill="none" stroke="#ffcb05" stroke-width="0.8" opacity="0.3"/>
+        <!-- 光沢 -->
+        <ellipse cx="45" cy="36" rx="20" ry="4" fill="white" opacity="0.04"/>
+      </svg>
+      <div class="no-box-title">BOXを検索・選択してください</div>
+      <div class="no-box-sub">上の検索バーにBOX名を入力するか<br>「一覧から選ぶ」ボタンで選択すると<br>そのBOXの買取価格ランキングが表示されます</div>
+    </div>
+
+    <!-- ランキング本体 -->
+    <div class="rank-area" id="rank-area">
+      <div class="result-count-bar" id="result-count-bar"></div>
+      <div class="section-block shrink-section">
+        <div class="section-header shrink-hdr">
+          <span class="section-icon">📦</span>
+          <div class="section-title-wrap"><div class="section-title">シュリンク有り</div><div class="section-desc">シュリンクフィルム付きの新品BOX</div></div>
+          <div class="section-count" id="shrink-cnt">0件</div>
+        </div>
+        <div class="section-body">
+          <div class="rank-list" id="shrink-list"></div>
+        </div>
+      </div>
+      <div class="section-block noshrink-section">
+        <div class="section-header noshrink-hdr">
+          <span class="section-icon">🃏</span>
+          <div class="section-title-wrap"><div class="section-title">シュリンク無し</div><div class="section-desc">シュリンク除去済みの新品BOX</div></div>
+          <div class="section-count" id="noshrink-cnt">0件</div>
+        </div>
+        <div class="section-body">
+          <div class="rank-list" id="noshrink-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 週間上昇ランキング（常時表示） -->
+    <div class="rise-section" id="rise-section">
+      <div class="rise-header">
+        <span class="rise-header-icon">🔥</span>
+        <div>
+          <div class="rise-header-title">週間上昇ランキング</div>
+          <div class="rise-header-sub">全BOX対象 ／ 1週間前と比較して平均買取価格が高騰した順</div>
+        </div>
+      </div>
+      <div class="rise-list" id="rise-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MARKET ══ -->
+<div id="page-market" class="page">
+  <div class="market-wrap">
+    <div class="market-hero">
+      <h2>ボックス<em>相場表</em></h2>
+      <p>過去データ＋毎日のX買取ツイートから算出した平均相場と価格推移グラフ</p>
+    </div>
+    <div class="mkt-searchbar">
+      <input type="text" id="mkt-q" placeholder="BOX名を入力..." oninput="renderMarket()">
+      <button class="mkt-s-clear" onclick="document.getElementById('mkt-q').value='';renderMarket()">✕</button>
+    </div>
+    <div id="mkt-list-view"><div class="mkt-box-list" id="mkt-box-list"></div></div>
+    <div class="mkt-detail" id="mkt-detail">
+      <div class="mkt-back" onclick="closeMktDetail()">← 一覧に戻る</div>
+      <div class="mkt-top-card">
+        <div class="mkt-top-hdr">
+          <div class="mkt-box-img" id="mkt-img"></div>
+          <div><div class="mkt-box-name" id="mkt-name"></div><div class="mkt-box-rel" id="mkt-rel"></div><div class="mkt-box-aliases" id="mkt-aliases"></div></div>
+        </div>
+        <div class="mkt-avg-grid">
+          <div class="mkt-avg-box"><div class="mkt-avg-lbl">📦 シュリンク有り 平均買取</div><div class="mkt-avg-num s" id="mkt-avg-s">—</div><div class="mkt-avg-sub" id="mkt-avg-s-sub"></div><div class="mkt-avg-range" id="mkt-range-s"></div></div>
+          <div class="mkt-avg-box"><div class="mkt-avg-lbl">🃏 シュリンク無し 平均買取</div><div class="mkt-avg-num n" id="mkt-avg-n">—</div><div class="mkt-avg-sub" id="mkt-avg-n-sub"></div><div class="mkt-avg-range" id="mkt-range-n"></div></div>
+        </div>
+      </div>
+      <div class="mkt-chart-card">
+        <div class="mkt-chart-hdr">
+          <div><div class="mkt-chart-title">📈 価格推移グラフ</div><div class="mkt-chart-note">手動過去データ＋X日次取得で構成</div></div>
+          <div class="period-row">
+            <div class="period-btn active" onclick="setChartP('all',this)">全期間</div>
+            <div class="period-btn" onclick="setChartP('1y',this)">1年</div>
+            <div class="period-btn" onclick="setChartP('6m',this)">6ヶ月</div>
+            <div class="period-btn" onclick="setChartP('1m',this)">1ヶ月</div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="price-chart"></canvas></div>
+      </div>
+      <div class="mkt-recent-card">
+        <div class="mkt-recent-hdr">最新の買取情報</div>
+        <div class="recent-tabs">
+          <div class="recent-tab s on" id="rtab-s" onclick="setRTab('s')">📦 シュリンク有り</div>
+          <div class="recent-tab n" id="rtab-n" onclick="setRTab('n')">🃏 シュリンク無し</div>
+        </div>
+        <div class="mkt-recent-rows" id="mkt-recent-rows"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LOGIN ══ -->
+<div id="page-login" class="page">
+  <div class="login-wrap">
+    <div class="login-box">
+      <div class="login-title">管理者ログイン</div>
+      <p class="login-sub">PokeBid BOX 管理パネル</p>
+      <div class="login-err" id="login-err">IDまたはパスワードが正しくありません</div>
+      <div class="form-grp"><label>管理者ID</label><input type="text" id="login-id" placeholder="admin" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="form-grp"><label>パスワード</label><input type="password" id="login-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="btn btn-primary" style="width:100%;padding:11px;font-size:13px;margin-top:3px" onclick="doLogin()">ログイン</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADMIN ══ -->
+<div id="page-admin" class="page">
+  <div class="admin-wrap">
+    <div class="admin-hdr">
+      <div><div class="admin-title">管理<span>パネル</span></div><div style="font-size:11px;color:var(--text3);margin-top:1px">PokeBid BOX</div></div>
+      <div style="display:flex;gap:7px;">
+        <button class="btn btn-teal" onclick="showPage('public')">← ランキング</button>
+        <button class="btn btn-danger" onclick="doLogout()">ログアウト</button>
+      </div>
+    </div>
+    <div class="admin-tab-bar">
+      <div class="atb on" onclick="switchATab('boxmaster',this)">BOX名管理</div>
+      <div class="atb" onclick="switchATab('history',this)">過去データ</div>
+      <div class="atb" onclick="switchATab('accounts',this)">Xアカウント</div>
+      <div class="atb" onclick="switchATab('entries',this)">買取情報</div>
+      <div class="atb" onclick="switchATab('ailog',this)">AIログ</div>
+      <div class="atb" onclick="switchATab('settings',this)">設定</div>
+    </div>
+
+    <div class="atb-content on" id="aTab-boxmaster">
+      <div class="api-note"><strong>📦 BOX名マスター</strong><br>ランキングと相場表に表示されるBOXを管理します。画像URLを設定するとカードにアイコンが表示されます。別名・表記ゆれを登録するとAIが自動的に正しいBOX名に紐づけます。</div>
+      <div class="form-card">
+        <div class="form-section-title">＋ BOXを登録</div>
+        <div class="form-row"><div class="form-grp"><label>BOX正式名称 *</label><input type="text" id="bm-name" placeholder="例: 夜のタンブラー"></div><div class="form-grp"><label>発売日</label><input type="date" id="bm-date"></div></div>
+        <div class="form-row"><div class="form-grp"><label>定価（円）</label><input type="number" id="bm-msrp" placeholder="例: 5500"></div><div class="form-grp"><label>BOX画像URL（任意）</label><input type="text" id="bm-img" placeholder="https://..."></div></div>
+        <div class="form-grp"><label>別名・表記ゆれ（カンマ区切り）</label><input type="text" id="bm-aliases" placeholder="例: 夜タン, 夜のタンプラー"></div>
+        <div class="form-grp"><label>メモ</label><input type="text" id="bm-note" placeholder="例: 2025年3月発売"></div>
+        <div class="form-actions"><button class="btn btn-ghost" onclick="clearBMForm()">クリア</button><button class="btn btn-primary" onclick="addBM()">登録</button></div>
+      </div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:8px">登録済みBOX（<span id="bm-count">0</span>件）</div>
+      <div class="bm-list" id="bm-list"></div>
+    </div>
+
+    <div class="atb-content" id="aTab-history">
+      <div class="api-note"><strong>📊 過去データ入力</strong><br>X APIでは直近しか取得できないため、発売日からの過去買取価格はここから手動で入力してください。相場表の価格推移グラフに反映されます。</div>
+      <div class="form-card">
+        <div class="form-section-title">＋ 過去データを追加</div>
+        <div class="form-row"><div class="form-grp"><label>BOX名 *</label><select id="ph-box"><option value="">選択</option></select></div><div class="form-grp"><label>日付 *</label><input type="date" id="ph-date"></div></div>
+        <div class="form-row"><div class="form-grp"><label>シュリンク有り 価格（円）</label><input type="number" id="ph-ps" placeholder="9500"></div><div class="form-grp"><label>シュリンク無し 価格（円）</label><input type="number" id="ph-pn" placeholder="8800"></div></div>
+        <div class="form-grp"><label>メモ</label><input type="text" id="ph-note" placeholder="発売直後など"></div>
+        <div class="form-actions"><button class="btn btn-ghost" onclick="clearPHForm()">クリア</button><button class="btn btn-primary" onclick="addPH()">追加</button></div>
+      </div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:8px">入力済み（<span id="ph-count">0</span>件）</div>
+      <div style="overflow-x:auto;"><table class="ph-tbl"><thead><tr><th>BOX名</th><th>日付</th><th>シュリンク有り</th><th>シュリンク無し</th><th>メモ</th><th></th></tr></thead><tbody id="ph-tbody"></tbody></table></div>
+    </div>
+
+    <div class="atb-content" id="aTab-accounts">
+      <div class="api-note"><strong>🤖 自動取得</strong><br>1分ごとに自動取得。当日・前日のみ処理し、AIが価格・BOX名・シュリンク有無・買取期限を解析してランキングに反映します。期限切れのエントリは自動除外されます。</div>
+      <div class="form-card">
+        <div class="form-section-title">＋ Xアカウントを登録</div>
+        <div class="form-row"><div class="form-grp"><label>店舗名 *</label><input type="text" id="ac-name" placeholder="カードショップ○○"></div><div class="form-grp"><label>XアカウントURL *</label><input type="text" id="ac-url" placeholder="https://x.com/..."></div></div>
+        <div class="form-row"><div class="form-grp"><label>都道府県</label><select id="ac-pref"><option value="">未設定</option><option>北海道</option><option>東京都</option><option>神奈川県</option><option>埼玉県</option><option>千葉県</option><option>大阪府</option><option>愛知県</option><option>福岡県</option><option>京都府</option><option>兵庫県</option></select></div><div class="form-grp"><label>店舗種別</label><select id="ac-type"><option value="shop">実店舗あり</option><option value="online">オンライン専門</option><option value="both">実店舗＋オンライン</option></select></div></div>
+        <div class="form-grp"><label>対応方法</label><div class="cb-row"><label class="cb-item"><input type="checkbox" id="ac-ship" checked> 📦 発送</label><label class="cb-item"><input type="checkbox" id="ac-walk"> 🚶 持込</label></div></div>
+        <div class="form-row"><div class="form-grp"><label>営業時間</label><input type="text" id="ac-hours" placeholder="10:00〜20:00"></div><div class="form-grp"><label>定休日</label><input type="text" id="ac-holiday" placeholder="毎週火曜日"></div></div>
+        <div class="form-grp"><label>メモ</label><textarea id="ac-note" placeholder="高価買取強化中など"></textarea></div>
+        <div class="form-actions"><button class="btn btn-ghost" onclick="clearACForm()">クリア</button><button class="btn btn-primary" onclick="addAC()">登録</button></div>
+      </div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:8px">登録済み（<span id="ac-count">0</span>件）</div>
+      <div id="ac-list"></div>
+    </div>
+
+    <div class="atb-content" id="aTab-entries">
+      <div class="form-card">
+        <div class="form-section-title">＋ 買取情報を手動入力</div>
+        <div class="form-grp"><label>シュリンク状態 *</label>
+          <div class="shrink-toggle"><div class="stog is-s on" id="stog-s" onclick="setShrink(true)">📦 シュリンク有り</div><div class="stog is-n" id="stog-n" onclick="setShrink(false)">🃏 シュリンク無し</div></div>
+        </div>
+        <div class="form-grp"><label>店舗（登録済みから）</label><select id="ent-ac" onchange="fillAC()"><option value="">手動入力</option></select></div>
+        <div class="form-row"><div class="form-grp"><label>店舗名 *</label><input type="text" id="ent-name"></div><div class="form-grp"><label>Xハンドル</label><input type="text" id="ent-handle" placeholder="@..."></div></div>
+        <div class="form-row"><div class="form-grp"><label>BOX名 *</label><select id="ent-box"><option value="">選択</option></select></div><div class="form-grp"><label>買取価格（円）*</label><input type="number" id="ent-price"></div></div>
+        <div class="form-row"><div class="form-grp"><label>都道府県</label><select id="ent-pref"><option value="">未設定</option><option>北海道</option><option>東京都</option><option>神奈川県</option><option>大阪府</option><option>愛知県</option><option>福岡県</option></select></div><div class="form-grp"><label>買取期限</label><input type="date" id="ent-expire"></div></div>
+        <div class="form-grp"><label>対応方法</label><div class="cb-row"><label class="cb-item"><input type="checkbox" id="ent-ship" checked> 📦 発送</label><label class="cb-item"><input type="checkbox" id="ent-walk"> 🚶 持込</label></div></div>
+        <div class="form-grp"><label>XポストURL</label><input type="text" id="ent-url" placeholder="https://x.com/..."></div>
+        <div class="form-actions"><button class="btn btn-ghost" onclick="clearENTForm()">クリア</button><button class="btn btn-primary" onclick="addENT()">追加</button></div>
+      </div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:8px">登録済み（<span id="ent-count">0</span>件）</div>
+      <div id="ent-list"></div>
+    </div>
+
+    <div class="atb-content" id="aTab-ailog">
+      <div class="ai-log-card"><div class="ai-log-title">🤖 AIバックグラウンド取得ログ</div><div class="ai-log-body" id="ai-log-body"><div style="color:var(--text3)">ログがここに表示されます...</div></div></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-ghost" onclick="clearLog()">ログをクリア</button>
+        <div style="font-size:11px;color:var(--text2)">次回取得まで: <strong id="next-cnt" style="color:var(--accent)">—</strong></div>
+      </div>
+    </div>
+
+    <div class="atb-content" id="aTab-settings">
+      <div class="form-card">
+        <div class="form-section-title">🔐 パスワード変更</div>
+        <div class="form-row"><div class="form-grp"><label>新しいID</label><input type="text" id="new-id"></div><div class="form-grp"><label>新しいパスワード</label><input type="password" id="new-pw"></div></div>
+        <div class="form-grp"><label>確認</label><input type="password" id="new-pw2"></div>
+        <button class="btn btn-primary" style="margin-top:3px" onclick="changePW()">変更する</button>
+      </div>
+      <div class="form-card">
+        <div class="form-section-title">🗑 データ管理</div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;">
+          <button class="btn btn-danger" onclick="clearAllENT()">買取情報を全削除</button>
+          <button class="btn btn-danger" onclick="clearAllAC()">アカウントを全削除</button>
+          <button class="btn btn-danger" onclick="clearAllBM()">BOXマスターを全削除</button>
+          <button class="btn btn-danger" onclick="clearAllPH()">過去データを全削除</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="detail-panel" id="dp"><div class="dp-inner" id="dp-content"></div></div>
+<div class="toast" id="toast"></div>
+
+<!-- 地域ドロップダウン外クリックで閉じる -->
+<div id="overlay" onclick="closePrefPanel()" style="display:none;position:fixed;inset:0;z-index:140;"></div>
+
+<script>
+const TODAY=new Date();
+const fmt=d=>d.toISOString().split('T')[0];
+const todayStr=fmt(TODAY);
+const yd=new Date(TODAY);yd.setDate(yd.getDate()-1);
+const yestStr=fmt(yd);
+
+const ALL_PREFS=['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'];
+
+let cred={id:'admin',pw:'admin'};
+let loggedIn=false;
+let activeF='all', selectedPrefs=[], excExp=true, shrinkMode=true;
+let selBox=null;
+let fetchBusy=false, fetchTick=60;
+let chartInst=null, detailBM=null, rTab='s';
+let dropdownMode=''; // 'search' or 'list'
+
+// ── BOXマスター ──
+let bms=[
+  {id:1,name:'夜のタンブラー',aliases:['夜タン','夜のタンプラー','夜のタンブラー1BOX'],releaseDate:'2025-03-07',imgUrl:'',note:'',msrp:5500},
+  {id:2,name:'超電ブレイカー',aliases:['超電','超電ブレーカー','超電ブレイカー1BOX'],releaseDate:'2024-09-13',imgUrl:'',note:'',msrp:5500},
+  {id:3,name:'レイジングサーフ',aliases:['レイジング','レイジングサーフ1BOX'],releaseDate:'2023-09-22',imgUrl:'',note:'',msrp:5500},
+  {id:4,name:'ステラミラクル',aliases:['ステラ','ミラクル','ステラミラクル1BOX'],releaseDate:'2024-07-19',imgUrl:'',note:'',msrp:5500},
+  {id:5,name:'マスカーニャex',aliases:['マスカーニャ'],releaseDate:'2023-01-20',imgUrl:'',note:'',msrp:5500},
+];
+
+// ── 前日・過去の価格履歴（前日比・上昇ランキング計算用）──
+const wk=new Date(TODAY);wk.setDate(wk.getDate()-7);
+const weekAgoStr=fmt(wk);
+let priceSnapshots=[
+  {box:'夜のタンブラー',shrink:true, date:yestStr, price:9000},
+  {box:'夜のタンブラー',shrink:false,date:yestStr, price:8400},
+  {box:'超電ブレイカー', shrink:true, date:yestStr, price:12400},
+  {box:'超電ブレイカー', shrink:false,date:yestStr, price:10900},
+  {box:'レイジングサーフ',shrink:true, date:yestStr, price:7600},
+  {box:'レイジングサーフ',shrink:false,date:yestStr, price:7000},
+  {box:'夜のタンブラー',shrink:true, date:weekAgoStr, price:8200},
+  {box:'夜のタンブラー',shrink:false,date:weekAgoStr, price:7800},
+  {box:'超電ブレイカー', shrink:true, date:weekAgoStr, price:11800},
+  {box:'超電ブレイカー', shrink:false,date:weekAgoStr, price:10500},
+  {box:'レイジングサーフ',shrink:true, date:weekAgoStr, price:7500},
+  {box:'レイジングサーフ',shrink:false,date:weekAgoStr, price:6900},
+  {box:'ステラミラクル',  shrink:true, date:weekAgoStr, price:6200},
+  {box:'ステラミラクル',  shrink:false,date:weekAgoStr, price:5800},
+];
+
+// ── 過去データ（相場表グラフ用）──
+let ph=[
+  {id:1,box:'夜のタンブラー',date:'2025-03-07',ps:9800,pn:9100,note:'発売日',src:'manual'},
+  {id:2,box:'夜のタンブラー',date:'2025-03-14',ps:9500,pn:8800,note:'',src:'manual'},
+  {id:3,box:'超電ブレイカー',date:'2024-09-13',ps:13000,pn:12000,note:'発売日',src:'manual'},
+  {id:4,box:'超電ブレイカー',date:'2024-10-01',ps:12500,pn:11500,note:'',src:'manual'},
+  {id:5,box:'超電ブレイカー',date:'2024-11-01',ps:12000,pn:11000,note:'',src:'manual'},
+  {id:6,box:'超電ブレイカー',date:'2025-01-01',ps:11800,pn:10800,note:'',src:'manual'},
+  {id:7,box:'レイジングサーフ',date:'2023-09-22',ps:8500,pn:7800,note:'発売日',src:'manual'},
+  {id:8,box:'レイジングサーフ',date:'2024-01-01',ps:7800,pn:7200,note:'',src:'manual'},
+];
+
+// ── アカウント ──
+let accounts=[
+  {id:1,name:'カードマーケット渋谷',url:'https://x.com/cardmkt_shibuya',handle:'@cardmkt_shibuya',pref:'東京都',type:'both',ship:true,walk:true,hours:'11:00〜21:00',holiday:'年中無休',note:'',active:true,
+    tw:[
+      {id:'t1',d:todayStr,text:'【本日の買取】夜のタンブラー 1BOX シュリンク有り¥9,200 シュリンク無し¥8,600 発送・持込対応！',img:false,imgDesc:null},
+      {id:'t2',d:todayStr,text:'本日の買取リスト👇',img:true,imgDesc:'買取表。「超電ブレイカー 1BOX シュリンク有り 12,800円 5月末まで」と記載。'},
+    ]},
+  {id:2,name:'トレカ王国大阪',url:'https://x.com/trecaking_osaka',handle:'@trecaking_osaka',pref:'大阪府',type:'shop',ship:true,walk:false,hours:'12:00〜20:00',holiday:'毎週水曜',note:'',active:true,
+    tw:[{id:'t3',d:yestStr,text:'',img:true,imgDesc:'手書きリスト。「夜のタンプラー BOX シュリンク有 9,000円　超電ブレーカー BOX シュリンク無 11,200円」（誤字あり）'}]},
+  {id:3,name:'ポケカ専門ひかり堂',url:'https://x.com/hikari_pokeca',handle:'@hikari_pokeca',pref:'福岡県',type:'online',ship:true,walk:false,hours:'',holiday:'',note:'',active:true,
+    tw:[
+      {id:'t4',d:todayStr,text:'レイジングサーフ 1BOX シュリンク有り 7,800円で買取中📦',img:false,imgDesc:null},
+      {id:'t5',d:'2025-01-01',text:'あけましておめでとう🎍',img:false,imgDesc:null},
+    ]},
+];
+
+// ── デモ用初期データ ──
+let stores=[
+  {id:101,shrink:true, name:'カードマーケット渋谷', handle:'@cardmkt_shibuya',   box:'夜のタンブラー',  price:9200,  pref:'東京都', ship:true,  walk:true,  expire:null,    url:'https://x.com/cardmkt_shibuya',    ai:true, d:todayStr},
+  {id:102,shrink:false,name:'カードマーケット渋谷', handle:'@cardmkt_shibuya',   box:'夜のタンブラー',  price:8600,  pref:'東京都', ship:true,  walk:true,  expire:null,    url:'https://x.com/cardmkt_shibuya',    ai:true, d:todayStr},
+  {id:103,shrink:true, name:'トレカ王国大阪',       handle:'@trecaking_osaka',   box:'夜のタンブラー',  price:9000,  pref:'大阪府', ship:true,  walk:false, expire:null,    url:'https://x.com/trecaking_osaka',    ai:true, d:yestStr},
+  {id:104,shrink:false,name:'トレカ王国大阪',       handle:'@trecaking_osaka',   box:'夜のタンブラー',  price:8400,  pref:'大阪府', ship:true,  walk:false, expire:null,    url:'https://x.com/trecaking_osaka',    ai:true, d:yestStr},
+  {id:105,shrink:true, name:'カードジャングル埼玉', handle:'@cardjungle_saitama',box:'夜のタンブラー',  price:8900,  pref:'埼玉県', ship:true,  walk:true,  expire:null,    url:'https://x.com/cardjungle_saitama', ai:false,d:todayStr},
+  {id:106,shrink:false,name:'カードジャングル埼玉', handle:'@cardjungle_saitama',box:'夜のタンブラー',  price:8200,  pref:'埼玉県', ship:true,  walk:true,  expire:null,    url:'https://x.com/cardjungle_saitama', ai:false,d:todayStr},
+  {id:107,shrink:true, name:'カードマーケット渋谷', handle:'@cardmkt_shibuya',   box:'超電ブレイカー', price:12800, pref:'東京都', ship:true,  walk:true,  expire:'2025-05-31',url:'https://x.com/cardmkt_shibuya', ai:true, d:todayStr},
+  {id:108,shrink:false,name:'トレカ王国大阪',       handle:'@trecaking_osaka',   box:'超電ブレイカー', price:11200, pref:'大阪府', ship:true,  walk:false, expire:null,    url:'https://x.com/trecaking_osaka',    ai:true, d:yestStr},
+  {id:109,shrink:true, name:'トレカパレス京都',     handle:'@treca_palace_kyoto',box:'超電ブレイカー', price:12500, pref:'京都府', ship:false, walk:true,  expire:null,    url:'https://x.com/treca_palace_kyoto', ai:false,d:todayStr},
+  {id:110,shrink:false,name:'トレカパレス京都',     handle:'@treca_palace_kyoto',box:'超電ブレイカー', price:11000, pref:'京都府', ship:false, walk:true,  expire:null,    url:'https://x.com/treca_palace_kyoto', ai:false,d:todayStr},
+  {id:111,shrink:true, name:'ポケカ専門ひかり堂',   handle:'@hikari_pokeca',     box:'レイジングサーフ',price:7800, pref:'福岡県', ship:true,  walk:false, expire:null,    url:'https://x.com/hikari_pokeca',      ai:true, d:todayStr},
+  {id:112,shrink:false,name:'ポケカ専門ひかり堂',   handle:'@hikari_pokeca',     box:'レイジングサーフ',price:7200, pref:'福岡県', ship:true,  walk:false, expire:null,    url:'https://x.com/hikari_pokeca',      ai:true, d:todayStr},
+];
+
+// ── 類似度 ──
+function sim(a,b){
+  const n=s=>s.toLowerCase().replace(/[\s　]/g,'').replace(/[Ａ-Ｚａ-ｚ０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0));
+  a=n(a);b=n(b);
+  if(a===b)return 1;if(!a.length||!b.length)return 0;
+  const m=Array.from({length:b.length+1},(_,i)=>Array.from({length:a.length+1},(_,j)=>j===0?i:i===0?j:0));
+  for(let j=1;j<=b.length;j++)for(let i=1;i<=a.length;i++)
+    m[j][i]=a[i-1]===b[j-1]?m[j-1][i-1]:1+Math.min(m[j-1][i-1],m[j-1][i],m[j][i-1]);
+  return 1-m[b.length][a.length]/Math.max(a.length,b.length);
+}
+function normBox(raw){
+  if(!bms.length)return raw;
+  let best=null,bs=0;
+  for(const bm of bms)for(const c of[bm.name,...(bm.aliases||[])]){const s=sim(raw,c);if(s>bs){bs=s;best=bm.name;}}
+  return bs>=0.4?best:raw;
+}
+
+// ── AIログ ──
+let logs=[];
+function addLog(msg,t=''){
+  const tm=new Date().toLocaleTimeString('ja-JP');
+  logs.unshift({tm,msg,t});if(logs.length>200)logs.length=200;
+  const el=document.getElementById('ai-log-body');
+  if(el)el.innerHTML=logs.map(l=>`<div class="alr"><span class="alt">[${l.tm}]</span><span class="alm ${l.t}">${l.msg}</span></div>`).join('');
+}
+function clearLog(){logs=[];const el=document.getElementById('ai-log-body');if(el)el.innerHTML='<div style="color:var(--text3)">クリアしました</div>';}
+
+function setAI(s){
+  const d=document.getElementById('ai-dot'),t=document.getElementById('ai-txt');
+  if(!d||!t)return;
+  d.className='ai-dot '+(s==='busy'?'busy':'on');
+  t.textContent=s==='busy'?'AI解析中':'AI稼働中';
+}
+
+// ── バックグラウンド取得 ──
+async function runFetch(){
+  if(fetchBusy)return;
+  const acts=accounts.filter(a=>a.active);if(!acts.length)return;
+  fetchBusy=true;setAI('busy');
+  addLog(`▶ 取得開始 (${acts.length}件)`,'ai');
+  const sl=ms=>new Promise(r=>setTimeout(r,ms));
+  // 当日・前日外を削除
+  const b=stores.length;
+  stores=stores.filter(s=>s.d===todayStr||s.d===yestStr);
+  if(stores.length<b){addLog(`  🗑 ${b-stores.length}件 期限切れ削除`,'warn');renderRank();}
+
+  for(const ac of acts){
+    addLog(`  @${ac.handle.replace('@','')} 処理中`);
+    for(const tw of ac.tw){
+      if(tw.d!==todayStr&&tw.d!==yestStr){addLog(`  ↳ 古いツイート スキップ`);continue;}
+      const t=tw.text.toLowerCase();
+      const rel=tw.img||t.includes('買取')||t.includes('box')||t.includes('シュリンク')||t.includes('円');
+      if(!rel){addLog(`  ↳ 無関係 スキップ`);continue;}
+      addLog(`  ↳ ${tw.img?'画像→Vision':'テキスト'}解析`,'ai');
+      await sl(180);
+      const list=await callAPI(tw,ac);
+      if(list?.length){
+        for(const e of list){
+          const nb=normBox(e.box);
+          if(nb!==e.box)addLog(`  ↳ 名称統一: 「${e.box}」→「${nb}」`,'warn');
+          // 期限切れチェック
+          if(e.expire&&e.expire<todayStr){addLog(`  ↳ 期限切れ除外: ${nb}`,'warn');continue;}
+          const ex=stores.find(s=>s.handle===ac.handle&&s.box===nb&&s.shrink===e.shrink&&s.d===tw.d);
+          if(ex){if(ex.price!==e.price){ex.price=e.price;if(e.expire)ex.expire=e.expire;addLog(`  ✓ 更新: ${nb} ¥${e.price.toLocaleString()}`,'ok');renderRank();}}
+          else{stores.unshift({id:Date.now()+Math.random(),shrink:e.shrink,name:ac.name,handle:ac.handle,box:nb,price:e.price,pref:ac.pref,ship:ac.ship,walk:ac.walk,expire:e.expire||null,url:ac.url,ai:true,d:tw.d});addLog(`  ✓ 追加: ${nb} ${e.shrink?'有':'無'} ¥${e.price.toLocaleString()}`,'ok');renderRank();}
+          const ep=ph.find(p=>p.box===nb&&p.date===tw.d&&p.src==='ai');
+          if(!ep){ph.push({id:Date.now()+Math.random(),box:nb,date:tw.d,ps:e.shrink?e.price:null,pn:e.shrink?null:e.price,note:'X自動取得',src:'ai'});}
+          else{if(e.shrink)ep.ps=e.price;else ep.pn=e.price;}
+        }
+      }else addLog(`  ↳ 買取情報なし`);
+      await sl(70);
+    }
+  }
+  const fetchEl=document.getElementById('stat-last-fetch');
+  if(fetchEl)fetchEl.textContent=new Date().toLocaleTimeString('ja-JP');
+  addLog(`✅ 完了`,'ok');
+  fetchBusy=false;setAI('on');
+}
+
+async function callAPI(tw,ac){
+  try{
+    const bl=bms.map(b=>b.name).join('、')||'（未登録）';
+    const p=tw.img
+      ?`日本ポケモンカード買取店のツイートです。\n画像説明:「${tw.imgDesc}」\nツイート:「${tw.text||'なし'}」\n登録BOX:【${bl}】\nBOX買取情報をJSON配列のみ返してください。形式:[{"box":"名前","price":数値,"shrink":true/false,"expire":"YYYY-MM-DDまたはnull"}]\n買取期限が明記されていれば取得。情報なければ[]`
+      :`日本ポケモンカード買取店のツイートです。\nツイート:「${tw.text}」\n登録BOX:【${bl}】\nBOX買取情報をJSON配列のみ返してください。形式:[{"box":"名前","price":数値,"shrink":true/false,"expire":"YYYY-MM-DDまたはnull"}]\n買取期限が明記されていれば取得。情報なければ[]`;
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:p}]})});
+    const d=await r.json();
+    const txt=d.content?.map(c=>c.text||'').join('')||'';
+    return JSON.parse(txt.replace(/```json|```/g,'').trim());
+  }catch(e){addLog(`  ⚠ APIエラー`,'warn');return[];}
+}
+
+function startTimer(){
+  setAI('on');runFetch();
+  setInterval(()=>{
+    fetchTick--;
+    const el=document.getElementById('next-cnt');if(el)el.textContent=fetchTick+'秒後';
+    if(fetchTick<=0){fetchTick=60;runFetch();}
+  },1000);
+}
+
+// ══ BOX検索 ══
+function onBoxSearch(){
+  const q=document.getElementById('box-search-q').value.trim();
+  if(!q){closeBoxDropdown();return;}
+  dropdownMode='search';
+  const matched=bms.filter(b=>b.name.toLowerCase().includes(q.toLowerCase())||(b.aliases||[]).some(a=>a.toLowerCase().includes(q.toLowerCase())));
+  renderDropdown(matched);
+}
+
+function toggleBoxDropdown(){
+  const dd=document.getElementById('box-dropdown');
+  const btn=document.getElementById('box-list-btn');
+  if(dd.classList.contains('open')&&dropdownMode==='list'){
+    closeBoxDropdown();return;
+  }
+  dropdownMode='list';
+  renderDropdown(bms);
+  btn.classList.add('open');
+}
+
+// インデックスでBOXを選択（日本語onclick問題を回避）
+let currentDropdownList=[];
+function renderDropdown(list){
+  currentDropdownList=list;
+  const dd=document.getElementById('box-dropdown');
+  if(!list.length){dd.innerHTML='<div style="padding:12px 14px;font-size:12px;color:var(--text3);">該当するBOXがありません</div>';dd.classList.add('open');return;}
+  dd.innerHTML=list.map((b,i)=>{
+    const cnt=stores.filter(s=>(s.d===todayStr||s.d===yestStr)&&s.box===b.name).length;
+    const imgHtml=b.imgUrl?`<img src="${b.imgUrl}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">`:'📦';
+    return`<div class="bdd-item ${selBox===b.name?'selected':''}" onclick="selectBoxByIndex(${i})">
+      <div class="bdd-img">${imgHtml}</div>
+      <div class="bdd-info">
+        <div class="bdd-name">${b.name}</div>
+        <div class="bdd-meta">${b.releaseDate?`発売: ${b.releaseDate}`:''}</div>
+      </div>
+      ${cnt?`<div class="bdd-cnt">本日・前日 ${cnt}件</div>`:'<div style="font-size:10px;color:var(--text3)">データなし</div>'}
+    </div>`;
+  }).join('');
+  dd.classList.add('open');
+}
+
+function selectBoxByIndex(i){
+  const b=currentDropdownList[i];
+  if(!b)return;
+  selectBox(b.name);
+}
+
+function selectBox(name){
+  selBox=name;
+  closeBoxDropdown();
+  document.getElementById('box-search-q').value=name;
+  const bm=bms.find(b=>b.name===name);
+  const sbb=document.getElementById('sbb');
+  const imgEl=document.getElementById('sbb-img');
+  if(bm?.imgUrl){imgEl.innerHTML=`<img src="${bm.imgUrl}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">`;}
+  else{imgEl.textContent='📦';}
+  document.getElementById('sbb-name').textContent=name;
+  document.getElementById('sbb-sub').textContent=bm?.releaseDate?`発売日: ${bm.releaseDate}`:'';
+  sbb.classList.add('show');
+  document.getElementById('filter-bar').style.display='flex';
+  document.getElementById('no-box-msg').style.display='none';
+  document.getElementById('rank-area').classList.add('show');
+  document.getElementById('stats-bar').classList.add('show');
+  renderRank();
+}
+
+function clearSelectedBox(){
+  selBox=null;
+  document.getElementById('box-search-q').value='';
+  document.getElementById('sbb').classList.remove('show');
+  document.getElementById('filter-bar').style.display='none';
+  document.getElementById('no-box-msg').style.display='block';
+  document.getElementById('rank-area').classList.remove('show');
+  document.getElementById('stats-bar').classList.remove('show');
+}
+
+function clearBoxSearch(){
+  document.getElementById('box-search-q').value='';
+  closeBoxDropdown();
+}
+
+function closeBoxDropdown(){
+  document.getElementById('box-dropdown').classList.remove('open');
+  document.getElementById('box-list-btn').classList.remove('open');
+}
+
+// ══ フィルター ══
+function setF(f,el){activeF=f;document.querySelectorAll('[data-f]').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderRank();}
+function toggleExp(el){excExp=!excExp;el.classList.toggle('active',excExp);renderRank();}
+
+// ── 地域複数選択 ──
+function initPrefGrid(){
+  const grid=document.getElementById('pref-grid');
+  grid.innerHTML=ALL_PREFS.map((p,i)=>`<div class="pref-dp-chip ${selectedPrefs.includes(p)?'active':''}" onclick="togglePref(${i})">${p}</div>`).join('');
+}
+function togglePref(idx){
+  const p=ALL_PREFS[idx];
+  const i=selectedPrefs.indexOf(p);
+  if(i>=0)selectedPrefs.splice(i,1);else selectedPrefs.push(p);
+  document.querySelectorAll('.pref-dp-chip')[idx].classList.toggle('active',selectedPrefs.includes(p));
+  updatePrefSummary();
+}
+function clearPrefs(){selectedPrefs=[];initPrefGrid();updatePrefSummary();}
+function updatePrefSummary(){
+  const btn=document.getElementById('pref-summary-btn');
+  if(!selectedPrefs.length)btn.textContent='📍 全国 ▾';
+  else if(selectedPrefs.length===1)btn.textContent=`📍 ${selectedPrefs[0]} ▾`;
+  else btn.textContent=`📍 ${selectedPrefs.length}地域選択中 ▾`;
+  renderRank();
+}
+function togglePrefPanel(){
+  const panel=document.getElementById('pref-panel');
+  const ov=document.getElementById('overlay');
+  const isOpen=panel.classList.contains('open');
+  if(isOpen){closePrefPanel();}
+  else{initPrefGrid();panel.classList.add('open');ov.style.display='block';}
+}
+function closePrefPanel(){
+  document.getElementById('pref-panel').classList.remove('open');
+  document.getElementById('overlay').style.display='none';
+}
+
+// ══ ランキング描画 ══
+function isExpired(s){
+  if(!s.expire)return false;
+  return s.expire<todayStr;
+}
+
+function filteredStores(list){
+  return list.filter(s=>{
+    if(s.box!==selBox)return false;
+    if(s.d!==todayStr&&s.d!==yestStr)return false;
+    if(excExp&&isExpired(s))return false;
+    if(activeF==='ship'&&!s.ship)return false;
+    if(activeF==='walk'&&!s.walk)return false;
+    if(selectedPrefs.length>0&&!selectedPrefs.includes(s.pref))return false;
+    return true;
+  });
+}
+
+function buildItems(list){
+  if(!list.length)return`<div class="rank-empty">条件に合う買取情報がありません</div>`;
+  const sortV=document.getElementById('sort-sel').value;
+  const sorted=[...list].sort((a,b)=>sortV==='price'?b.price-a.price:a.name.localeCompare(b.name,'ja'));
+  return sorted.map((s,i)=>{
+    const r=i+1,isToday=s.d===todayStr,exp=isExpired(s);
+    const rc=r<=3?`rank-${r}`:'';
+
+    // 定価・差益
+    const bm=bms.find(b=>b.name===s.box);
+    const msrp=bm?.msrp||null;
+    const diff=msrp?s.price-msrp:null;
+    // diff>0 = 定価より高い = 利益あり = 緑、diff<0 = 定価より安い = 赤
+    const diffColor=diff===null?'':diff>0?'color:var(--green)':'color:var(--red)';
+    const diffLabel=diff===null?'':diff>0?`+${diff.toLocaleString()}円（利益）`:`${diff.toLocaleString()}円（利益）`;
+
+    // 前日比
+    const yestSnap=priceSnapshots.find(p=>p.box===s.box&&p.shrink===s.shrink&&p.date===yestStr);
+    let dayChange=null,dayChangeClass='flat',dayChangeLabel='';
+    if(yestSnap&&isToday){
+      dayChange=s.price-yestSnap.price;
+      if(dayChange>0){dayChangeClass='up';dayChangeLabel=`▲${dayChange.toLocaleString()}円`;}
+      else if(dayChange<0){dayChangeClass='down';dayChangeLabel=`▼${Math.abs(dayChange).toLocaleString()}円`;}
+      else{dayChangeLabel='前日同値';}
+    }
+
+    return`<div class="rank-item ${rc}" onclick="openDP(${s.id})" style="animation-delay:${i*0.035}s">
+      <div class="ri-rank">
+        ${r===1?'<div class="ri-crown">👑</div>':''}
+        <div class="ri-num ${r>3?'other':''}">${r}</div>
+      </div>
+      <div class="ri-info">
+        <div class="ri-store">${s.name}</div>
+        <div class="ri-tags">
+          ${s.ship?'<span class="tag tag-ship">📦 発送</span>':''}
+          ${s.walk?'<span class="tag tag-walk">🚶 持込</span>':''}
+          ${s.pref?`<span class="tag tag-pref">📍${s.pref}</span>`:''}
+          ${s.ai?'<span class="tag tag-ai">🤖 AI</span>':''}
+          <span class="tag ${isToday?'tag-today':'tag-yest'}">${isToday?'本日':'前日'}</span>
+          ${exp?'<span class="tag tag-exp">⚠ 期限切れ可能性</span>':''}
+          ${s.expire&&!exp?`<span class="tag" style="background:rgba(255,203,5,0.08);color:var(--accent);border:1px solid rgba(255,203,5,0.16)">期限:${s.expire}</span>`:''}
+        </div>
+        <div class="ri-handle">${s.handle} · ${s.d}</div>
+      </div>
+      <div class="ri-price-block">
+        <div class="ri-buy-price">
+          <span class="ri-buy-label">買取</span>
+          <span class="ri-buy-amount">${s.price.toLocaleString()}</span>
+          <span class="ri-buy-unit">円</span>
+        </div>
+        ${msrp?`<div class="ri-msrp">定価 ${msrp.toLocaleString()}円</div>`:''}
+        ${diff!==null?`<div class="ri-diff" style="${diffColor}">${diffLabel}</div>`:''}
+        ${dayChange!==null?`<div class="ri-day-change ${dayChangeClass}">${dayChangeLabel}</div>`:isToday?'':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// 上昇ランキングを計算・描画
+function renderRisingRanking(){
+  const el=document.getElementById('rise-list');
+  if(!el)return;
+
+  // 現在の平均買取価格（全BOX・シュリンク有無合算）
+  const boxNames=[...new Set(stores.filter(s=>s.d===todayStr||s.d===yestStr).map(s=>s.box))];
+  const results=[];
+
+  for(const box of boxNames){
+    const current=stores.filter(s=>s.box===box&&(s.d===todayStr||s.d===yestStr));
+    if(!current.length)continue;
+    const currentAvg=Math.round(current.reduce((a,c)=>a+c.price,0)/current.length);
+
+    // 1週間前の平均
+    const weekAgoSnaps=priceSnapshots.filter(p=>p.box===box&&p.date===weekAgoStr);
+    if(!weekAgoSnaps.length)continue;
+    const weekAvg=Math.round(weekAgoSnaps.reduce((a,c)=>a+c.price,0)/weekAgoSnaps.length);
+
+    const rise=currentAvg-weekAvg;
+    const riseRate=Math.round((rise/weekAvg)*100);
+    results.push({box,currentAvg,weekAvg,rise,riseRate});
+  }
+
+  // 上昇率降順でソート
+  results.sort((a,b)=>b.rise-a.rise);
+  const top=results.filter(r=>r.rise>0).slice(0,5);
+
+  if(!top.length){
+    el.innerHTML='<div class="rank-empty">1週間前のデータと比較できるBOXがありません</div>';
+    return;
+  }
+
+  el.innerHTML=top.map((r,i)=>{
+    const rank=i+1;
+    const bm=bms.find(b=>b.name===r.box);
+    const imgHtml=bm?.imgUrl?`<img src="${bm.imgUrl}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">`:'📦';
+    const isUp=r.rise>0;
+    const changeColor=isUp?'var(--green)':'var(--red)';
+    const changeArrow=isUp?'▲':'▼';
+    return`<div class="rise-item rise-${rank}" style="animation-delay:${i*0.05}s">
+      <div class="rise-rank ${rank>3?'other':''}">${rank<=3?['🥇','🥈','🥉'][rank-1]:rank}</div>
+      <div style="width:36px;height:36px;border-radius:8px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;overflow:hidden;">${imgHtml}</div>
+      <div class="rise-info">
+        <div class="rise-box-name">${r.box}</div>
+        <div class="rise-meta">現在平均 ${r.currentAvg.toLocaleString()}円 ／ 1週間前 ${r.weekAvg.toLocaleString()}円</div>
+      </div>
+      <div class="rise-price-block">
+        <div class="rise-change" style="color:${changeColor}">${changeArrow}${Math.abs(r.rise).toLocaleString()}円</div>
+        <div class="rise-change-label" style="color:${changeColor}">${isUp?'+':''}${r.riseRate}%</div>
+        <div class="rise-prices">7日間比較</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderRank(){
+  if(!selBox)return;
+  const sl=filteredStores(stores.filter(s=>s.shrink));
+  const nl=filteredStores(stores.filter(s=>!s.shrink));
+  document.getElementById('shrink-list').innerHTML=buildItems(sl);
+  document.getElementById('noshrink-list').innerHTML=buildItems(nl);
+  document.getElementById('shrink-cnt').textContent=sl.length+'件';
+  document.getElementById('noshrink-cnt').textContent=nl.length+'件';
+  const all=filteredStores(stores);
+  document.getElementById('result-count-bar').innerHTML=`<strong style="color:var(--accent)">${selBox}</strong> の買取情報 合計 <strong>${all.length}</strong> 件`;
+  // stats
+  const fresh=stores.filter(s=>s.d===todayStr||s.d===yestStr);
+  document.getElementById('stat-stores').textContent=fresh.length;
+  const slSorted=[...sl].sort((a,b)=>b.price-a.price);
+  const nlSorted=[...nl].sort((a,b)=>b.price-a.price);
+  document.getElementById('stat-s-max').textContent=slSorted.length?slSorted[0].price.toLocaleString():'—';
+  document.getElementById('stat-n-max').textContent=nlSorted.length?nlSorted[0].price.toLocaleString():'—';
+  document.getElementById('updated-time').textContent=new Date().toLocaleString('ja-JP')+' 更新';
+  renderRisingRanking();
+}
+
+function openDP(id){
+  const s=stores.find(x=>x.id===id);if(!s)return;
+  const isToday=s.d===todayStr,exp=isExpired(s);
+  document.getElementById('dp-content').innerHTML=`
+    <button class="dp-close" onclick="closeDP()">✕</button>
+    <div style="clear:both;padding-top:4px"></div>
+    <div class="dp-shrink-badge ${s.shrink?'shrink-yes':'shrink-no'}">${s.shrink?'📦 シュリンク有り':'🃏 シュリンク無し'}</div>
+    <span class="tag ${isToday?'tag-today':'tag-yest'}" style="margin-left:5px">${isToday?'本日':'前日'}</span>
+    ${s.ai?'<span class="tag tag-ai" style="margin-left:5px">🤖 AI</span>':''}
+    ${exp?'<div style="margin-top:8px;font-size:11px;color:var(--red);background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.18);border-radius:7px;padding:6px 10px;">⚠ 買取期限切れの可能性があります。必ず店舗にご確認ください。</div>':''}
+    <div class="dp-store">${s.name}</div>
+    <div class="dp-handle">${s.handle}</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:3px">対象BOX</div>
+    <div style="font-size:13px;font-weight:700;margin-bottom:8px">📦 ${s.box}</div>
+    <div class="dp-price">${s.price.toLocaleString()}<span style="font-size:16px;color:var(--text3)"> 円</span></div>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:10px">
+      ${s.ship?'<span class="tag tag-ship">📦 発送対応</span>':''}
+      ${s.walk?'<span class="tag tag-walk">🚶 持込対応</span>':''}
+      ${s.pref?`<span class="tag tag-pref">📍 ${s.pref}</span>`:''}
+      ${s.expire?`<span class="tag" style="background:rgba(255,203,5,0.08);color:var(--accent);border:1px solid rgba(255,203,5,0.16)">期限: ${s.expire}</span>`:''}
+    </div>
+    <div style="margin-top:12px;font-size:10px;color:var(--text3);background:rgba(255,107,107,0.06);border:1px solid rgba(255,107,107,0.12);border-radius:7px;padding:7px 10px;line-height:1.6;">
+      ⚠ 表示価格はXのツイートから自動取得したものです。価格変更・買取終了の可能性があります。必ず各店舗の最新情報をご確認ください。
+    </div>
+    <div class="dp-section"><h4>Xで確認</h4><a class="x-link" href="${s.url||'https://x.com/'+s.handle.replace('@','')}" target="_blank">𝕏 ${s.handle} のポストを見る →</a></div>
+    <div class="dp-section"><h4>操作</h4><button class="btn btn-danger" style="width:100%;padding:8px" onclick="delStore(${s.id})">🗑 削除</button></div>`;
+  document.getElementById('dp').classList.add('open');
+}
+function closeDP(){document.getElementById('dp').classList.remove('open');}
+function delStore(id){if(!confirm('削除しますか？'))return;stores=stores.filter(s=>s.id!==id);closeDP();renderRank();toast('削除しました','ok');}
+
+// ══ 相場表 ══
+function renderMarket(){
+  const q=document.getElementById('mkt-q').value.toLowerCase().trim();
+  const list=bms.filter(b=>!q||b.name.toLowerCase().includes(q)||(b.aliases||[]).some(a=>a.toLowerCase().includes(q)));
+  const el=document.getElementById('mkt-box-list');
+  if(!list.length){el.innerHTML='<div class="rank-empty">該当するBOXがありません</div>';return;}
+  el.innerHTML=list.map((b,i)=>{
+    const pd=ph.filter(p=>p.box===b.name);
+    const sa=pd.filter(p=>p.ps).map(p=>p.ps),na=pd.filter(p=>p.pn).map(p=>p.pn);
+    const avgS=sa.length?Math.round(sa.reduce((a,c)=>a+c,0)/sa.length):null;
+    const avgN=na.length?Math.round(na.reduce((a,c)=>a+c,0)/na.length):null;
+    const imgHtml=b.imgUrl?`<img src="${b.imgUrl}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">`:'📦';
+    return`<div class="mkt-box-row" onclick="openMktDetail(${b.id})" style="animation-delay:${i*0.04}s">
+      <div class="mbr-img">${imgHtml}</div>
+      <div class="mbr-info">
+        <div class="mbr-name">${b.name}</div>
+        <div class="mbr-meta">${b.releaseDate?`発売: ${b.releaseDate}`:''} ${pd.length?`　データ${pd.length}件`:''}</div>
+        <div class="mbr-avgs">
+          <div class="mbr-avg-item"><div class="mbr-avg-lbl">シュリンク有り平均</div><div class="mbr-avg-val s">${avgS?avgS.toLocaleString()+'円':'—'}</div></div>
+          <div class="mbr-avg-item"><div class="mbr-avg-lbl">シュリンク無し平均</div><div class="mbr-avg-val n">${avgN?avgN.toLocaleString()+'円':'—'}</div></div>
+        </div>
+      </div>
+      <div class="mbr-arrow">›</div>
+    </div>`;
+  }).join('');
+}
+
+function openMktDetail(bmId){
+  const bm=bms.find(b=>b.id===bmId);if(!bm)return;
+  detailBM=bm;
+  document.getElementById('mkt-list-view').style.display='none';
+  document.getElementById('mkt-detail').classList.add('show');
+  const imgEl=document.getElementById('mkt-img');
+  imgEl.innerHTML=bm.imgUrl?`<img src="${bm.imgUrl}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">`:'📦';
+  document.getElementById('mkt-name').textContent=bm.name;
+  document.getElementById('mkt-rel').textContent=bm.releaseDate?`発売日: ${bm.releaseDate}`:'発売日: 不明';
+  document.getElementById('mkt-aliases').textContent=(bm.aliases||[]).length?`別名: ${bm.aliases.join(', ')}`:'';
+  const pd=ph.filter(p=>p.box===bm.name);
+  const sa=pd.filter(p=>p.ps).map(p=>p.ps),na=pd.filter(p=>p.pn).map(p=>p.pn);
+  const avgS=sa.length?Math.round(sa.reduce((a,c)=>a+c,0)/sa.length):null;
+  const avgN=na.length?Math.round(na.reduce((a,c)=>a+c,0)/na.length):null;
+  document.getElementById('mkt-avg-s').textContent=avgS?avgS.toLocaleString()+'円':'データなし';
+  document.getElementById('mkt-avg-n').textContent=avgN?avgN.toLocaleString()+'円':'データなし';
+  document.getElementById('mkt-avg-s-sub').textContent=sa.length?`${sa.length}件から算出`:'';
+  document.getElementById('mkt-avg-n-sub').textContent=na.length?`${na.length}件から算出`:'';
+  document.getElementById('mkt-range-s').textContent=sa.length?`最安 ${Math.min(...sa).toLocaleString()}円 〜 最高 ${Math.max(...sa).toLocaleString()}円`:'';
+  document.getElementById('mkt-range-n').textContent=na.length?`最安 ${Math.min(...na).toLocaleString()}円 〜 最高 ${Math.max(...na).toLocaleString()}円`:'';
+  drawChart('all');renderRecentRows();
+}
+function closeMktDetail(){document.getElementById('mkt-detail').classList.remove('show');document.getElementById('mkt-list-view').style.display='';if(chartInst){chartInst.destroy();chartInst=null;}detailBM=null;}
+function setChartP(p,el){document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');drawChart(p);}
+function drawChart(period){
+  if(!detailBM)return;
+  let data=[...ph.filter(p=>p.box===detailBM.name)].sort((a,b)=>a.date.localeCompare(b.date));
+  const now=new Date();
+  let cut=null;
+  if(period==='1m'){cut=new Date(now);cut.setMonth(cut.getMonth()-1);}
+  else if(period==='6m'){cut=new Date(now);cut.setMonth(cut.getMonth()-6);}
+  else if(period==='1y'){cut=new Date(now);cut.setFullYear(cut.getFullYear()-1);}
+  if(cut)data=data.filter(p=>new Date(p.date)>=cut);
+  if(chartInst){chartInst.destroy();chartInst=null;}
+  const ctx=document.getElementById('price-chart').getContext('2d');
+  chartInst=new Chart(ctx,{type:'line',data:{labels:data.map(p=>p.date),datasets:[
+    {label:'シュリンク有り',data:data.map(p=>p.ps||null),borderColor:'#3dd9c4',backgroundColor:'rgba(61,217,196,0.06)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#3dd9c4',tension:0.35,spanGaps:true},
+    {label:'シュリンク無し',data:data.map(p=>p.pn||null),borderColor:'#f97316',backgroundColor:'rgba(249,115,22,0.06)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#f97316',tension:0.35,spanGaps:true},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{
+    legend:{labels:{color:'rgba(240,242,250,0.5)',font:{size:11},boxWidth:12}},
+    tooltip:{backgroundColor:'#191c27',titleColor:'#f0f2fa',bodyColor:'rgba(240,242,250,0.65)',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,callbacks:{label:c=>`${c.dataset.label}: ¥${c.parsed.y?.toLocaleString()}`}}
+  },scales:{
+    x:{ticks:{color:'rgba(240,242,250,0.28)',maxTicksLimit:8,font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}},
+    y:{ticks:{color:'rgba(240,242,250,0.28)',font:{size:10},callback:v=>'¥'+v.toLocaleString()},grid:{color:'rgba(255,255,255,0.03)'}}
+  }}});
+}
+function setRTab(t){rTab=t;document.getElementById('rtab-s').classList.toggle('on',t==='s');document.getElementById('rtab-n').classList.toggle('on',t==='n');renderRecentRows();}
+function renderRecentRows(){
+  if(!detailBM)return;
+  let items=[];
+  stores.filter(s=>s.box===detailBM.name&&s.shrink===(rTab==='s')).forEach(s=>{items.push({store:s.name,date:s.d,price:s.price,src:'AI'});});
+  ph.filter(p=>p.box===detailBM.name&&(rTab==='s'?p.ps:p.pn)).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10).forEach(p=>{items.push({store:'平均データ',date:p.date,price:rTab==='s'?p.ps:p.pn,src:p.src==='manual'?'手動':'AI'});});
+  items.sort((a,b)=>b.date.localeCompare(a.date));
+  const el=document.getElementById('mkt-recent-rows');
+  if(!items.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px">データがありません</div>';return;}
+  el.innerHTML=items.slice(0,15).map(it=>`<div class="mrr"><div class="mrr-store">${it.store}</div><div class="mrr-date">${it.date}</div><div class="mrr-price">¥${it.price.toLocaleString()}</div><div class="mrr-src">${it.src}</div></div>`).join('');
+}
+
+// ══ ページ遷移 ══
+function showPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active-nav'));
+  if(p==='public')document.querySelectorAll('.nav-btn')[0].classList.add('active-nav');
+  if(p==='market'){document.querySelectorAll('.nav-btn')[1].classList.add('active-nav');renderMarket();}
+  if(p==='admin'){document.querySelectorAll('.nav-btn')[2].classList.add('active-nav');renderBMList();renderPHTable();renderACList();renderENTList();updateSels();}
+}
+function goAdmin(){loggedIn?showPage('admin'):showPage('login');}
+
+// ── 認証 ──
+function doLogin(){
+  const id=document.getElementById('login-id').value.trim(),pw=document.getElementById('login-pw').value;
+  if(id===cred.id&&pw===cred.pw){loggedIn=true;document.getElementById('login-err').classList.remove('show');document.getElementById('login-id').value='';document.getElementById('login-pw').value='';showPage('admin');}
+  else document.getElementById('login-err').classList.add('show');
+}
+function doLogout(){loggedIn=false;showPage('public');toast('ログアウトしました','ok');}
+function changePW(){
+  const id=document.getElementById('new-id').value.trim(),pw=document.getElementById('new-pw').value,pw2=document.getElementById('new-pw2').value;
+  if(!id||!pw)return toast('入力してください','err');
+  if(pw!==pw2)return toast('パスワードが一致しません','err');
+  cred={id,pw};['new-id','new-pw','new-pw2'].forEach(i=>document.getElementById(i).value='');toast('変更しました','ok');
+}
+function switchATab(t,el){
+  document.querySelectorAll('.atb').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.atb-content').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');document.getElementById('aTab-'+t).classList.add('on');
+  if(t==='history')renderPHTable();
+}
+
+// ── BOXマスター ──
+function addBM(){
+  const name=document.getElementById('bm-name').value.trim();
+  if(!name)return toast('BOX名は必須です','err');
+  if(bms.find(b=>b.name===name))return toast('同名のBOXが存在します','err');
+  const al=document.getElementById('bm-aliases').value.trim();
+  const msrp=parseInt(document.getElementById('bm-msrp').value)||null;
+  bms.push({id:Date.now(),name,aliases:al?al.split(',').map(s=>s.trim()).filter(Boolean):[],releaseDate:document.getElementById('bm-date').value,imgUrl:document.getElementById('bm-img').value.trim(),note:document.getElementById('bm-note').value.trim(),msrp});
+  clearBMForm();renderBMList();updateSels();toast('BOXを登録しました','ok');
+}
+function clearBMForm(){['bm-name','bm-aliases','bm-img','bm-note','bm-msrp'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('bm-date').value='';}
+function delBM(id){if(!confirm('削除しますか？'))return;bms=bms.filter(b=>b.id!==id);renderBMList();updateSels();toast('削除しました','ok');}
+function clearAllBM(){if(!confirm('全削除しますか？'))return;bms=[];renderBMList();updateSels();toast('削除しました','ok');}
+function renderBMList(){
+  document.getElementById('bm-count').textContent=bms.length;
+  const el=document.getElementById('bm-list');
+  if(!bms.length){el.innerHTML='<div class="rank-empty">登録済みのBOXがありません</div>';return;}
+  el.innerHTML=bms.map(b=>{
+    const img=b.imgUrl?`<img src="${b.imgUrl}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">`:'📦';
+    return`<div class="bm-row">
+      <div class="bm-row-img">${img}</div>
+      <div class="bm-row-info">
+        <div class="bm-row-name">📦 ${b.name}${b.msrp?` <span style="font-size:10px;color:var(--text3);font-weight:400;">定価 ${b.msrp.toLocaleString()}円</span>`:''}</div>
+        <div class="bm-row-meta">${b.releaseDate?`発売:${b.releaseDate}　`:''}${(b.aliases||[]).length?`別名:${b.aliases.join(', ')}`:''}</div>
+      </div>
+      <button class="btn btn-danger" style="font-size:10px;padding:4px 8px" onclick="delBM(${b.id})">削除</button>
+    </div>`;
+  }).join('');
+}
+
+// ── 過去データ ──
+function addPH(){
+  const box=document.getElementById('ph-box').value,date=document.getElementById('ph-date').value;
+  const ps=parseInt(document.getElementById('ph-ps').value)||null,pn=parseInt(document.getElementById('ph-pn').value)||null;
+  if(!box||!date||(!ps&&!pn))return toast('BOX・日付・価格は必須です','err');
+  const ex=ph.find(p=>p.box===box&&p.date===date&&p.src==='manual');
+  if(ex){if(ps)ex.ps=ps;if(pn)ex.pn=pn;ex.note=document.getElementById('ph-note').value.trim();}
+  else ph.push({id:Date.now(),box,date,ps,pn,note:document.getElementById('ph-note').value.trim(),src:'manual'});
+  clearPHForm();renderPHTable();toast('追加しました','ok');
+}
+function clearPHForm(){['ph-ps','ph-pn','ph-note'].forEach(id=>document.getElementById(id).value='');document.getElementById('ph-date').value='';document.getElementById('ph-box').value='';}
+function delPH(id){if(!confirm('削除しますか？'))return;ph=ph.filter(p=>p.id!==id);renderPHTable();toast('削除しました','ok');}
+function clearAllPH(){if(!confirm('全削除しますか？'))return;ph=ph.filter(p=>p.src!=='manual');renderPHTable();toast('削除しました','ok');}
+function renderPHTable(){
+  const manual=ph.filter(p=>p.src==='manual').sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('ph-count').textContent=manual.length;
+  const tb=document.getElementById('ph-tbody');
+  if(!manual.length){tb.innerHTML=`<tr><td colspan="6" style="padding:10px;text-align:center;color:var(--text3);font-size:11px">データがありません</td></tr>`;return;}
+  tb.innerHTML=manual.map(p=>`<tr><td>${p.box}</td><td>${p.date}</td><td>${p.ps?'¥'+p.ps.toLocaleString():'—'}</td><td>${p.pn?'¥'+p.pn.toLocaleString():'—'}</td><td style="color:var(--text3)">${p.note||''}</td><td><button class="btn btn-danger" style="font-size:10px;padding:3px 6px" onclick="delPH(${p.id})">削除</button></td></tr>`).join('');
+}
+
+// ── アカウント ──
+function addAC(){
+  const name=document.getElementById('ac-name').value.trim(),url=document.getElementById('ac-url').value.trim();
+  if(!name||!url)return toast('店舗名とURLは必須です','err');
+  const handle='@'+url.replace(/.*x\.com\//,'').replace(/\/.*/,'').replace('@','');
+  accounts.push({id:Date.now(),name,url,handle,pref:document.getElementById('ac-pref').value,type:document.getElementById('ac-type').value,ship:document.getElementById('ac-ship').checked,walk:document.getElementById('ac-walk').checked,hours:document.getElementById('ac-hours').value.trim(),holiday:document.getElementById('ac-holiday').value.trim(),note:document.getElementById('ac-note').value.trim(),active:true,tw:[]});
+  clearACForm();renderACList();updateSels();toast('登録しました','ok');
+}
+function clearACForm(){['ac-name','ac-url','ac-hours','ac-holiday','ac-note'].forEach(id=>document.getElementById(id).value='');document.getElementById('ac-pref').value='';document.getElementById('ac-type').value='shop';document.getElementById('ac-ship').checked=true;document.getElementById('ac-walk').checked=false;}
+function delAC(id){if(!confirm('削除しますか？'))return;accounts=accounts.filter(a=>a.id!==id);renderACList();updateSels();toast('削除しました','ok');}
+function toggleAC(id){const a=accounts.find(x=>x.id===id);if(a)a.active=!a.active;renderACList();}
+function clearAllAC(){if(!confirm('全削除しますか？'))return;accounts=[];renderACList();updateSels();toast('削除しました','ok');}
+function renderACList(){
+  document.getElementById('ac-count').textContent=accounts.length;
+  const el=document.getElementById('ac-list');
+  if(!accounts.length){el.innerHTML='<div class="rank-empty">アカウントが登録されていません</div>';return;}
+  el.innerHTML=accounts.map(a=>`<div class="ac-card">
+    <div><div class="ac-name">${a.name}</div><div class="ac-handle">${a.handle}</div>
+      <div class="ac-tags">${a.ship?'<span class="tag tag-ship">📦 発送</span>':''}${a.walk?'<span class="tag tag-walk">🚶 持込</span>':''}${a.pref?`<span class="tag tag-pref">📍${a.pref}</span>`:''}</div>
+      <div style="font-size:10px;margin-top:5px;color:${a.active?'var(--green)':'var(--text3)'}">● ${a.active?'有効':'無効'}</div>
+    </div>
+    <div class="ac-actions">
+      <button class="btn btn-ghost" style="font-size:10px;padding:4px 7px" onclick="toggleAC(${a.id})">${a.active?'無効化':'有効化'}</button>
+      <a href="${a.url}" target="_blank" class="btn btn-teal" style="font-size:10px;padding:4px 7px;text-decoration:none;text-align:center">𝕏</a>
+      <button class="btn btn-danger" style="font-size:10px;padding:4px 7px" onclick="delAC(${a.id})">削除</button>
+    </div>
+  </div>`).join('');
+}
+
+// ── 買取情報 ──
+function setShrink(v){shrinkMode=v;document.getElementById('stog-s').classList.toggle('on',v);document.getElementById('stog-n').classList.toggle('on',!v);}
+function fillAC(){const id=parseInt(document.getElementById('ent-ac').value);if(!id)return;const a=accounts.find(x=>x.id===id);if(!a)return;document.getElementById('ent-name').value=a.name;document.getElementById('ent-handle').value=a.handle;document.getElementById('ent-pref').value=a.pref||'';document.getElementById('ent-ship').checked=a.ship;document.getElementById('ent-walk').checked=a.walk;}
+function addENT(){
+  const name=document.getElementById('ent-name').value.trim(),box=document.getElementById('ent-box').value,price=parseInt(document.getElementById('ent-price').value);
+  if(!name||!box||!price)return toast('必須項目を入力してください','err');
+  const expire=document.getElementById('ent-expire').value||null;
+  if(expire&&expire<todayStr)return toast('買取期限が過去の日付です','err');
+  stores.unshift({id:Date.now(),shrink:shrinkMode,name,handle:document.getElementById('ent-handle').value.trim()||'@unknown',box,price,pref:document.getElementById('ent-pref').value,ship:document.getElementById('ent-ship').checked,walk:document.getElementById('ent-walk').checked,expire,url:document.getElementById('ent-url').value.trim(),ai:false,d:todayStr});
+  clearENTForm();renderENTList();if(selBox===box)renderRank();toast('追加しました','ok');
+}
+function clearENTForm(){['ent-name','ent-handle','ent-price','ent-url'].forEach(id=>document.getElementById(id).value='');document.getElementById('ent-pref').value='';document.getElementById('ent-expire').value='';document.getElementById('ent-ship').checked=true;document.getElementById('ent-walk').checked=false;document.getElementById('ent-ac').value='';document.getElementById('ent-box').value='';}
+function delENT(id){stores=stores.filter(s=>s.id!==id);renderENTList();if(selBox)renderRank();toast('削除しました','ok');}
+function clearAllENT(){if(!confirm('全削除しますか？'))return;stores=[];renderENTList();if(selBox)renderRank();toast('削除しました','ok');}
+function renderENTList(){
+  document.getElementById('ent-count').textContent=stores.length;
+  const el=document.getElementById('ent-list');
+  if(!stores.length){el.innerHTML='<div class="rank-empty">データがありません</div>';return;}
+  el.innerHTML=stores.map(s=>`<div class="ent-card">
+    <div>
+      <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:3px">
+        <div style="font-size:12px;font-weight:700">${s.name}</div>
+        <span class="tag ${s.shrink?'shrink-yes':'shrink-no'}">${s.shrink?'📦 有':'🃏 無'}</span>
+        ${s.ai?'<span class="tag tag-ai">🤖</span>':''}
+        <span class="tag ${s.d===todayStr?'tag-today':'tag-yest'}">${s.d===todayStr?'本日':'前日'}</span>
+      </div>
+      <div style="font-size:11px;color:var(--text3)">📦 ${s.box}</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--accent)">¥${s.price.toLocaleString()}</div>
+    </div>
+    <button class="btn btn-danger" style="font-size:10px;padding:4px 8px" onclick="delENT(${s.id})">削除</button>
+  </div>`).join('');
+}
+
+// ── セレクト更新 ──
+function updateSels(){
+  const bOpts='<option value="">選択</option>'+bms.map(b=>`<option value="${b.name}">${b.name}</option>`).join('');
+  document.getElementById('ent-box').innerHTML=bOpts;
+  document.getElementById('ph-box').innerHTML=bOpts;
+  document.getElementById('ent-ac').innerHTML='<option value="">手動入力</option>'+accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+}
+
+// ── Toast ──
+function toast(msg,t='ok'){const el=document.getElementById('toast');el.textContent=msg;el.className='toast '+t+' show';setTimeout(()=>el.classList.remove('show'),2500);}
+
+// ── 初期化 ──
+updateSels();
+renderMarket();
+renderRisingRanking();
+startTimer();
+</script>
+</body>
+</html>

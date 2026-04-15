@@ -527,8 +527,43 @@ header{background:rgba(8,9,13,0.94);border-bottom:1px solid var(--border);paddin
   .detail-panel{width:100vw;}
   .form-row{grid-template-columns:1fr;}
   .mkt-avg-grid{grid-template-columns:1fr;}
-  .ai-status span{display:none;}
   .pref-dp-grid{grid-template-columns:repeat(3,1fr);}
+
+  /* ── ヘッダー スマホ最適化 ── */
+  .header-inner{height:48px;padding:0 12px;gap:6px;}
+
+  /* ロゴ：アイコン＋短縮テキスト */
+  .logo{gap:6px;}
+  .logo-icon{width:22px;height:22px;}
+  .logo-icon svg{width:22px;height:22px;}
+  .logo-text{font-size:13px;letter-spacing:0.06em;}
+  .logo-badge{display:none;} /* BETAバッジは省略 */
+
+  /* AIステータス非表示 */
+  .ai-status{display:none;}
+
+  /* ナビボタン：コンパクトに */
+  .header-nav{gap:4px;}
+  .nav-btn{padding:5px 10px;font-size:11px;border-radius:7px;}
+  .nav-btn.admin-btn{padding:4px 7px;font-size:10px;}
+
+  /* 特徴バナーをスマホ用に小さく */
+  .feature-banner{padding:10px 12px;margin-bottom:12px;}
+  .feature-item{gap:8px;}
+  .feature-icon{font-size:18px;}
+  .feature-title{font-size:11px;}
+  .feature-desc{font-size:10px;}
+
+  /* ヒーローの余白を詰める */
+  .rank-hero{margin-bottom:12px;}
+  .rank-hero h1{font-size:clamp(18px,6vw,28px);}
+}
+
+/* ── 極小画面（360px以下）追加対応 ── */
+@media(max-width:360px){
+  .logo-text{font-size:11px;}
+  .nav-btn{padding:5px 8px;font-size:10px;}
+  .nav-btn.admin-btn{padding:4px 6px;font-size:9px;}
 }
 </style>
 </head>

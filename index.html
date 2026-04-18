@@ -5324,17 +5324,71 @@ function renderPHTable(){
 }
 
 // ── アカウント ──
-function addAC(){
+async function addAC(){
   const name=document.getElementById('ac-name').value.trim(),url=document.getElementById('ac-url').value.trim();
   if(!name||!url)return toast('店舗名とURLは必須です','err');
   const handle='@'+url.replace(/.*x\.com\//,'').replace(/\/.*/,'').replace('@','');
-  accounts.push({id:Date.now(),name,url,handle,pref:document.getElementById('ac-pref').value,type:document.getElementById('ac-type').value,ship:document.getElementById('ac-ship').checked,walk:document.getElementById('ac-walk').checked,hours:document.getElementById('ac-hours').value.trim(),holiday:document.getElementById('ac-holiday').value.trim(),note:document.getElementById('ac-note').value.trim(),active:true,tw:[]});
-  clearACForm();renderACList();updateSels();toast('登録しました','ok');
+  const entry={id:Date.now(),name,url,handle,
+    pref:document.getElementById('ac-pref').value,
+    type:document.getElementById('ac-type').value,
+    ship:document.getElementById('ac-ship').checked,
+    walk:document.getElementById('ac-walk').checked,
+    hours:document.getElementById('ac-hours').value.trim(),
+    holiday:document.getElementById('ac-holiday').value.trim(),
+    note:document.getElementById('ac-note').value.trim(),
+    active:true,tw:[]};
+  accounts.push(entry);
+  clearACForm();renderACList();updateSels();
+
+  // サーバーに同期
+  try{
+    const res=await fetch(`${SERVER_URL}/api/accounts`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(entry)
+    });
+    if(res.ok){
+      toast('登録しました（サーバーに同期済み）','ok');
+      addLog(`✅ アカウント追加: ${name} (${handle}) をサーバーに登録`,'ok');
+    } else {
+      toast('登録しました（サーバー同期失敗）','ok');
+    }
+  }catch(e){
+    toast('登録しました（サーバー未接続）','ok');
+    addLog(`⚠ サーバー同期失敗: ${e.message}`,'warn');
+  }
 }
 function clearACForm(){['ac-name','ac-url','ac-hours','ac-holiday','ac-note'].forEach(id=>document.getElementById(id).value='');document.getElementById('ac-pref').value='';document.getElementById('ac-type').value='shop';document.getElementById('ac-ship').checked=true;document.getElementById('ac-walk').checked=false;}
-function delAC(id){if(!confirm('削除しますか？'))return;accounts=accounts.filter(a=>a.id!==id);renderACList();updateSels();toast('削除しました','ok');}
+async function delAC(id){
+  if(!confirm('削除しますか？'))return;
+  const ac=accounts.find(a=>a.id===id);
+  accounts=accounts.filter(a=>a.id!==id);
+  renderACList();updateSels();
+
+  // サーバーから削除
+  if(ac){
+    try{
+      await fetch(`${SERVER_URL}/api/accounts/${encodeURIComponent(ac.handle)}`,{method:'DELETE'});
+      toast('削除しました（サーバーに同期済み）','ok');
+      addLog(`✅ アカウント削除: ${ac.handle} をサーバーから削除`,'ok');
+    }catch(e){
+      toast('削除しました（サーバー未接続）','ok');
+    }
+  } else {
+    toast('削除しました','ok');
+  }
+}
 function toggleAC(id){const a=accounts.find(x=>x.id===id);if(a)a.active=!a.active;renderACList();}
-function clearAllAC(){if(!confirm('全削除しますか？'))return;accounts=[];renderACList();updateSels();toast('削除しました','ok');}
+async function clearAllAC(){
+  if(!confirm('全削除しますか？'))return;
+  // サーバーからも全削除
+  for(const ac of accounts){
+    try{
+      await fetch(`${SERVER_URL}/api/accounts/${encodeURIComponent(ac.handle)}`,{method:'DELETE'});
+    }catch(e){}
+  }
+  accounts=[];renderACList();updateSels();toast('全削除しました','ok');
+}
 function renderACList(){
   document.getElementById('ac-count').textContent=accounts.length;
   const el=document.getElementById('ac-list');

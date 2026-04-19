@@ -1151,6 +1151,7 @@ header{background:rgba(8,9,13,0.94);border-bottom:1px solid var(--border);paddin
     </div>
     <div class="admin-tab-bar">
       <div class="atb on" onclick="switchATab('boxmaster',this)">BOX名管理</div>
+      <div class="atb" onclick="switchATab('cardmaster',this)">単品カード管理</div>
       <div class="atb" onclick="switchATab('history',this)">過去データ</div>
       <div class="atb" onclick="switchATab('accounts',this)">Xアカウント</div>
       <div class="atb" onclick="switchATab('entries',this)">買取情報</div>
@@ -1311,6 +1312,61 @@ header{background:rgba(8,9,13,0.94);border-bottom:1px solid var(--border);paddin
           <button class="btn btn-danger" onclick="clearAllBM()">BOXマスターを全削除</button>
           <button class="btn btn-danger" onclick="clearAllPH()">過去データを全削除</button>
         </div>
+      </div>
+    </div>
+
+    <!-- 単品カード管理タブ -->
+    <div class="atb-content" id="aTab-cardmaster">
+      <div class="api-note"><strong>✨ 単品カードマスター</strong><br>ランキングと相場表に表示される単品カードを管理します。レアリティ・収録パック・入手方法など詳細情報も登録できます。画像URLを設定するとカード画像が表示されます。</div>
+
+      <!-- カード登録フォーム -->
+      <div class="form-card">
+        <div class="form-section-title">＋ カードを登録</div>
+        <div class="form-row">
+          <div class="form-grp"><label>カード正式名称 *</label><input type="text" id="cm-name" placeholder="例: ピカチュウex"></div>
+          <div class="form-grp"><label>レアリティ *</label>
+            <select id="cm-rarity">
+              <option value="">選択してください</option>
+              <option value="SAR">SAR（スペシャルアートレア）</option>
+              <option value="UR">UR（ウルトラレア）</option>
+              <option value="HR">HR（ハイパーレア）</option>
+              <option value="SR">SR（スーパーレア）</option>
+              <option value="RRR">RRR（トリプルレア）</option>
+              <option value="RR">RR（ダブルレア）</option>
+              <option value="R">R（レア）</option>
+              <option value="A">A（アメイジングレア）</option>
+              <option value="VSTAR">VSTAR</option>
+              <option value="VMAX">VMAX</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-grp"><label>収録パック名</label><input type="text" id="cm-set" placeholder="例: ナイトワンダラー"></div>
+          <div class="form-grp"><label>発売日</label><input type="date" id="cm-date"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-grp"><label>カード番号</label><input type="text" id="cm-number" placeholder="例: 086/100"></div>
+          <div class="form-grp"><label>入手方法</label>
+            <select id="cm-howtget">
+              <option value="拡張パック封入">拡張パック封入</option>
+              <option value="スペシャルセット">スペシャルセット</option>
+              <option value="プロモ">プロモカード</option>
+              <option value="大会賞品">大会賞品</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grp"><label>別名・検索ワード（カンマ区切り）</label><input type="text" id="cm-aliases" placeholder="例: ピカチュウEX, pikachu ex, ピカex"></div>
+        <div class="form-grp"><label>カード画像URL（任意）</label><input type="text" id="cm-img" placeholder="https://images.pokemontcg.io/..."></div>
+        <div class="form-grp"><label>メモ</label><input type="text" id="cm-note" placeholder="備考など"></div>
+        <button class="btn btn-primary" style="margin-top:8px" onclick="addCM()">✚ カードを登録</button>
+      </div>
+
+      <!-- 登録済みカード一覧 -->
+      <div class="form-card">
+        <div class="form-section-title">登録済みカード一覧 <span id="cm-count" style="color:var(--accent);font-size:13px">0</span>件</div>
+        <div id="cm-list" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;"></div>
       </div>
     </div>
   </div>
@@ -2041,7 +2097,7 @@ function showPage(p){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active-nav'));
   if(p==='public'){document.querySelectorAll('.nav-btn')[0].classList.add('active-nav');renderSelector();if(selBox)renderRank();renderRisingRanking();}
   if(p==='market'){document.querySelectorAll('.nav-btn')[1].classList.add('active-nav');renderMarket();}
-  if(p==='admin'){document.querySelectorAll('.nav-btn')[2].classList.add('active-nav');renderBMList();renderPHTable();renderACList();renderENTList();updateSels();}
+  if(p==='admin'){document.querySelectorAll('.nav-btn')[2].classList.add('active-nav');renderBMList();renderPHTable();renderACList();renderENTList();renderCMList();updateSels();}
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function goAdmin(){loggedIn?showPage('admin'):showPage('login');}
@@ -2372,6 +2428,126 @@ function renderACList(){
 }
 
 
+
+// ════════════════════════════════════════
+// 単品カード管理
+// ════════════════════════════════════════
+
+function renderCMList(){
+  const el=document.getElementById('cm-list');
+  const countEl=document.getElementById('cm-count');
+  if(countEl) countEl.textContent=cardMasters.length;
+  if(!el)return;
+  if(!cardMasters.length){
+    el.innerHTML='<div class="rank-empty">登録済みのカードがありません</div>';return;
+  }
+  el.innerHTML=cardMasters.map(cm=>{
+    const img=cm.imgUrl
+      ?`<img src="${cm.imgUrl}" alt="" style="width:100%;height:100%;object-fit:contain;display:block;">`
+      :'✨';
+    const rarityColor={
+      'SAR':'var(--accent)','UR':'var(--purple)','HR':'var(--teal)',
+      'SR':'var(--blue)','RRR':'var(--green)','VSTAR':'var(--orange)',
+      'VMAX':'var(--red)'
+    }[cm.rarity]||'var(--text2)';
+    return`<div class="bm-row">
+      <div class="bm-row-img" style="background:rgba(180,125,255,0.1);">${img}</div>
+      <div class="bm-row-info" style="flex:1;">
+        <div class="bm-row-name" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          ✨ ${cm.name}
+          ${cm.rarity?`<span style="font-size:10px;font-weight:700;color:${rarityColor};background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.1)">${cm.rarity}</span>`:''}
+        </div>
+        <div class="bm-row-meta" style="line-height:1.7;">
+          ${cm.set?`📦 ${cm.set}　`:''}
+          ${cm.releaseDate?`📅 ${cm.releaseDate}　`:''}
+          ${cm.number?`No.${cm.number}　`:''}
+        </div>
+        ${cm.howToGet?`<div style="font-size:10px;color:var(--blue);margin-top:1px;">💡 ${cm.howToGet}</div>`:''}
+        ${cm.aliases?.length?`<div style="font-size:10px;color:var(--text3);margin-top:1px;">別名: ${cm.aliases.join(', ')}</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
+        <button class="btn btn-ghost" style="font-size:10px;padding:4px 8px" onclick="editCard(${cm.id})">編集</button>
+        <button class="btn btn-danger" style="font-size:10px;padding:4px 8px" onclick="delCM(${cm.id})">削除</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function clearCMForm(){
+  ['cm-name','cm-set','cm-number','cm-aliases','cm-img','cm-note'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  const rEl=document.getElementById('cm-rarity');if(rEl)rEl.value='';
+  const hEl=document.getElementById('cm-howtget');if(hEl)hEl.value='拡張パック封入';
+  const dEl=document.getElementById('cm-date');if(dEl)dEl.value='';
+}
+
+async function addCM(){
+  const name=document.getElementById('cm-name')?.value.trim();
+  const rarity=document.getElementById('cm-rarity')?.value;
+  if(!name)return toast('カード名は必須です','err');
+  if(!rarity)return toast('レアリティを選択してください','err');
+
+  const entry={
+    id:Date.now(),
+    name,
+    rarity,
+    set:document.getElementById('cm-set')?.value.trim()||'',
+    releaseDate:document.getElementById('cm-date')?.value||'',
+    number:document.getElementById('cm-number')?.value.trim()||'',
+    howToGet:document.getElementById('cm-howtget')?.value||'拡張パック封入',
+    aliases:document.getElementById('cm-aliases')?.value.split(',').map(s=>s.trim()).filter(Boolean)||[],
+    imgUrl:document.getElementById('cm-img')?.value.trim()||'',
+    note:document.getElementById('cm-note')?.value.trim()||'',
+  };
+
+  cardMasters.push(entry);
+  clearCMForm();
+  renderCMList();
+
+  // サーバーに同期
+  try{
+    const res=await fetch(`${SERVER_URL}/api/cards`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(entry)
+    });
+    if(res.ok){
+      toast('カードを登録しました（サーバーに同期済み）','ok');
+      addLog(`✅ カード追加: ${name} (${rarity})を登録`,'ok');
+    }else{
+      toast('カードを登録しました（サーバー同期失敗）','ok');
+    }
+  }catch(e){
+    toast('カードを登録しました（サーバー未接続）','ok');
+  }
+}
+
+async function delCM(id){
+  if(!confirm('このカードを削除しますか？'))return;
+  const cm=cardMasters.find(c=>c.id===id);
+  cardMasters=cardMasters.filter(c=>c.id!==id);
+  renderCMList();
+  renderCardMarket && renderCardMarket();
+  try{
+    await fetch(`${SERVER_URL}/api/cards/${id}`,{method:'DELETE'});
+    toast('削除しました（サーバーに同期済み）','ok');
+  }catch(e){
+    toast('削除しました（サーバー未接続）','ok');
+  }
+}
+
+async function clearAllCM(){
+  if(!confirm('全てのカードを削除しますか？'))return;
+  for(const cm of cardMasters){
+    try{ await fetch(`${SERVER_URL}/api/cards/${cm.id}`,{method:'DELETE'}); }catch(e){}
+  }
+  cardMasters=[];
+  renderCMList();
+  renderCardMarket && renderCardMarket();
+  toast('全削除しました','ok');
+}
+
 // ════════════════════════════════════════
 // 編集機能
 // ════════════════════════════════════════
@@ -2487,22 +2663,30 @@ async function saveAC(id){
 function editCard(id){
   const cm=cardMasters.find(x=>x.id===id);
   if(!cm)return;
+  const rarityOpts=['SAR','UR','HR','SR','RRR','RR','R','A','VSTAR','VMAX','その他']
+    .map(r=>`<option value="${r}" ${cm.rarity===r?'selected':''}>${r}</option>`).join('');
+  const howOpts=['拡張パック封入','スペシャルセット','プロモ','大会賞品','その他']
+    .map(h=>`<option value="${h}" ${cm.howToGet===h?'selected':''}>${h}</option>`).join('');
   openEditModal(`
     <h3>✨ カード編集</h3>
     <div class="form-group"><label>カード名</label>
       <input id="ecm-name" value="${cm.name}"></div>
+    <div class="form-group"><label>レアリティ</label>
+      <select id="ecm-rarity"><option value="">選択</option>${rarityOpts}</select></div>
     <div class="form-group"><label>収録パック</label>
       <input id="ecm-set" value="${cm.set||''}"></div>
-    <div class="form-group"><label>レアリティ</label>
-      <input id="ecm-rarity" value="${cm.rarity||''}" placeholder="SAR / SR / UR など"></div>
+    <div class="form-group"><label>カード番号</label>
+      <input id="ecm-number" value="${cm.number||''}" placeholder="例: 086/100"></div>
     <div class="form-group"><label>発売日</label>
       <input id="ecm-date" type="date" value="${cm.releaseDate||''}"></div>
     <div class="form-group"><label>入手方法</label>
-      <input id="ecm-how" value="${cm.howToGet||''}"></div>
+      <select id="ecm-how">${howOpts}</select></div>
     <div class="form-group"><label>画像URL</label>
       <input id="ecm-img" value="${cm.imgUrl||''}" placeholder="https://..."></div>
     <div class="form-group"><label>別名・検索ワード（カンマ区切り）</label>
       <input id="ecm-aliases" value="${(cm.aliases||[]).join(', ')}"></div>
+    <div class="form-group"><label>メモ</label>
+      <input id="ecm-note" value="${cm.note||''}"></div>
     <div class="edit-modal-btns">
       <button class="btn btn-primary" onclick="saveCard(${id})">保存</button>
       <button class="btn btn-ghost" onclick="document.getElementById('edit-modal-overlay').style.display='none'">キャンセル</button>
@@ -2517,7 +2701,9 @@ async function saveCard(id){
   cm.set=document.getElementById('ecm-set').value.trim();
   cm.rarity=document.getElementById('ecm-rarity').value.trim();
   cm.releaseDate=document.getElementById('ecm-date').value;
-  cm.howToGet=document.getElementById('ecm-how').value.trim();
+  cm.howToGet=document.getElementById('ecm-how').value;
+  cm.number=document.getElementById('ecm-number')?.value.trim()||cm.number||'';
+  cm.note=document.getElementById('ecm-note')?.value.trim()||'';
   cm.imgUrl=document.getElementById('ecm-img').value.trim();
   cm.aliases=document.getElementById('ecm-aliases').value.split(',').map(s=>s.trim()).filter(Boolean);
   document.getElementById('edit-modal-overlay').style.display='none';
@@ -3269,20 +3455,33 @@ let useServer = false; // サーバー接続が確認できたらtrueになる
 // サーバーからデータを取得
 async function loadFromServer() {
   try {
+    // BOX買取データ取得
     const res = await fetch(`${SERVER_URL}/api/stores`);
     if(!res.ok) throw new Error('サーバーエラー');
     const data = await res.json();
+    stores = data;
+    useServer = true;
     if(data.length > 0) {
-      // サーバーのデータをデモデータに上書き
-      stores = data;
-      useServer = true;
-      addLog(`✅ サーバーから${data.length}件取得`, 'ok');
+      addLog(`✅ BOX買取 ${data.length}件取得`, 'ok');
       renderRisingRanking();
       if(selBox) renderRank();
     }
   } catch(e) {
     addLog(`⚠ サーバー未接続（デモモード）: ${e.message}`, 'warn');
   }
+
+  try {
+    // 単品カード買取データ取得
+    const cRes = await fetch(`${SERVER_URL}/api/cardstores`);
+    if(cRes.ok) {
+      const cData = await cRes.json();
+      cardStores = cData;
+      if(cData.length > 0) {
+        addLog(`✅ カード買取 ${cData.length}件取得`, 'ok');
+        if(selCard) renderCardRank();
+      }
+    }
+  } catch(e) {}
 }
 
 // サーバーからアカウント一覧を取得してaccountsに反映
@@ -3292,7 +3491,9 @@ async function syncAccountsFromServer() {
     const data = await res.json();
     if(data.length > 0) {
       accounts = data;
-      addLog(`✅ アカウント${data.length}件同期`, 'ok');
+      addLog(`✅ アカウント ${data.length}件同期`, 'ok');
+      renderACList && renderACList();
+      updateSels();
     }
   } catch(e) {}
 }

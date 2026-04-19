@@ -2153,8 +2153,11 @@ function switchATab(t,el){
   el.classList.add('on');document.getElementById('aTab-'+t).classList.add('on');
   if(t==='history'){
     renderPHTable();
-    initCrawlTarget();
-    updateCostEstimate();
+    // サーバーから最新アカウントを取得してから表示
+    fetch(`${SERVER_URL}/api/accounts`)
+      .then(r=>r.json())
+      .then(data=>{ if(data.length>0) accounts=data; initCrawlTarget(); updateCostEstimate(); })
+      .catch(()=>{ initCrawlTarget(); updateCostEstimate(); });
   }
 }
 
@@ -2232,6 +2235,15 @@ function initCrawlTarget(){
 async function crawlHistoricalTweets(){
   if(crawlRunning)return;
 
+  // サーバーから最新のアカウント一覧を取得
+  try{
+    const res=await fetch(`${SERVER_URL}/api/accounts`);
+    if(res.ok){
+      const data=await res.json();
+      if(data.length>0) accounts=data;
+    }
+  }catch(e){}
+
   // アカウント一覧を最新化
   initCrawlTarget();
 
@@ -2245,7 +2257,11 @@ async function crawlHistoricalTweets(){
     const tid=parseInt(targetVal);
     acts=acts.filter(a=>a.id===tid);
   }
-  if(!acts.length){toast('有効なアカウントがありません','err');return;}
+  if(!acts.length){
+    toast('アカウントが登録されていません。Xアカウントタブから登録してください','err');
+    addLog('⚠ アカウント未登録。Xアカウントタブから登録してください','warn');
+    return;
+  }
 
   crawlRunning=true;crawlShouldStop=false;
   const btn=document.getElementById('crawl-btn');
